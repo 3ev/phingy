@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="" basedir="." default="...">
+    <target name="readme" hidden="true">
+        <exec command="cat README.md" dir="${build.path}" outputProperty="readme" />
+        <echo msg="================================================================================" />
+        <echo msg="================================================================================" />
+        <echo msg="README:" />
+        <echo msg="${readme}" />        
+        <echo msg="[ends" />
+    </target>
+    
+    <target name="build:skel" description="Applies configuration to skel files" depends="needConfiguration">
+        <echo msg="Skel files..." />
+
+        <copy todir="" overwrite="true">
+            <mapper type="glob" from="*.skel" to="*"/>
+            <filterchain>
+                <expandproperties />
+            </filterchain>
+
+            <fileset dir=".">
+                <include name="**/*.skel" />
+            </fileset>
+        </copy>
+
+        <chmod mode="0755">
+            <fileset dir="./bin">
+                <include name="*" />
+            </fileset>
+        </chmod>
+    </target>
+    
+    <!-- Remove cached config files -->
+    <target name="build" description="Build the project" depends="needConfiguration">
+        <phingcall target="project.build:before" />
+        <phingcall target="build:skel" />
+        <phingcall target="db:update" />
+        <phingcall target="project.build:after" />
+    </target>
+    
+    <target name="build:clearcache" depends="needConfiguration" description="Clear cached YAML config">
+        <exec command="sudo rm htdocs/typo3temp/config_cache*" escape="false" />
+    </target>
+    
+    <target name="build:server" description="Symlink site into sites-enabled AND restart apache">
+        <exec command="ln -s ${build.path}/config/httpd.include /etc/apache2/sites-enabled/${build.name}" escape="false" />
+        <exec command="sudo service apache2 reload" />    
+    </target>
+    
+    <target name="build:housekeeping" description="Delete everything which isn't required for the running of the site. Logs etc">
+        <phingcall target="project.build:housekeeping" />
+    </target>
+</project>

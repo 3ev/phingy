@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="" basedir="." default="...">
+    
+    <!-- 
+        The create, drop, recreate and empty targets
+    -->
+    <target name="db:create" depends="needConfiguration, db:drop" description="Create the database including privileges">
+        <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask"/>
+        <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
+            CREATE DATABASE IF NOT EXISTS ${db.name} CHARACTER SET utf8;
+            GRANT all ON ${db.name}.* TO '${db.name}'@'${db.host}' IDENTIFIED BY '${db.name}';
+            GRANT all ON ${db.name}.* TO '${db.name}'@'%' IDENTIFIED BY '${db.name}';
+            FLUSH PRIVILEGES;
+        </pdosqlexec>
+        <echo msg="Database created!" />
+    </target>
+
+    <!-- Drops the MySQL database -->
+    <target name="db:drop" depends="needConfiguration" description="Drop the database">
+        <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
+            DROP DATABASE if exists ${db.name};
+        </pdosqlexec>
+        <echo msg="Database dropped!" />
+    </target>
+
+    <!-- Alias: db:drop, db:create -->
+    <target name="db:recreate" description="Drops and recreates the database" depends="db:drop, db:create">
+    </target>
+    
+    <!-- Empty the database -->
+    <target name="db:data:empty" description="Truncate all tables">
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}">
+            SELECT CONCAT('TRUNCATE TABLE ',table_name, ';') FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE();
+        <formatter type="plain" outfile="${db.data_path}/truncate.sql" showheaders="false" coldelim="" />
+        </pdosqlexec>
+
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/truncate.sql" />
+        <delete file="${db.data_path}/truncate.sql" />
+    </target>
+    
+    <!--
+        The loading, dumping, updating methods for structure and data
+    -->
+    <!-- Create the database structure -->
+    <target name="db:structure:load" depends="db:drop, db:create" description="Recreate the DB and load structure from data/db/create.sql">
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/create.sql" />
+    </target>
+
+    <!-- Populate the database -->
+    <target name="db:data:load" depends="db:data:empty" description="Empty the database and reload from data/db/data.sql">
+        <exec command="bash bin/mysql &lt; ${db.data_path}/data.sql" escape="false" />
+    </target>
+
+    <!-- Dump the data -->
+    <target name="db:data:dump" depends="needConfiguration" description="Dump DB structure into data/db/data.sql">
+        <echo msg="MySQL dump tables '${db.tables.data}' into ${db.data_path}/data.sql" />
+        <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${db.user} -p${db.user} -h${db.host} ${db.name} ${db.tables.data}  > ${db.data_path}/data.sql" />
+    </target>
+
+    <!-- Dump the structure -->
+    <target name="db:structure:dump" depends="needConfiguration" description="Dump DB structure into data/db/create.sql">
+        <echo msg="MySQL dump tables '${db.tables.structure}' into ${db.data_path}/data.sql" />
+        <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.user} -h${db.host} ${db.name} ${db.tables.structure} > ${db.data_path}/create.sql" />
+    </target>
+
+    <!-- Update DB structure from S3 -->
+    <target name="db:structure:update" depends="needConfiguration" description="Download structure file from S3 to data/db/create.sql">
+        <echo msg="Grabbing data from: database.${project.name}.3ev.me" />
+        <s3get
+            bucket="database.${project.name}.3ev.me"
+            object="create.sql"
+            target="${db.data_path}/create.sql" />
+    </target>
+
+    <!-- Update DB data from S3 -->
+    <target name="db:data:update" depends="needConfiguration" description="Download data file from S3 to data/db/data.sql">
+        <s3get
+            bucket="database.${project.name}.3ev.me"
+            object="data.sql"
+            target="${db.data_path}/data.sql" />
+    </target>
+    
+    <!-- Uploads the structure + data file to S3, keeps forever -->
+    <target name="db:commit:forever" depends="needConfiguration" description="Upload structure + data to S3, forever">
+        <s3put
+            createBuckets="true"
+            bucket="database.${project.name}.3ev.me"
+            object="create-${time.today}.sql"
+            source="${db.data_path}/create.sql" />
+
+        <s3put
+            createBuckets="true"
+            bucket="database.${project.name}.3ev.me"
+            object="data-${time.today}.sql"
+            source="${db.data_path}/data.sql" />
+    </target>
+
+    <!-- Uploads the structure file to S3 -->
+    <target name="db:structure:commit" depends="needConfiguration" description="Upload structure to S3 from data/db/create.sql">
+        <s3put
+            createBuckets="true"
+            bucket="database.${project.name}.3ev.me"
+            object="create.sql"
+            source="${db.data_path}/create.sql" />
+    </target>
+
+    <!-- Uploads the data file to S3 -->
+    <target name="db:data:commit" depends="needConfiguration" description="Upload data to S3 from data/db/data.sql">
+        <s3put
+            createBuckets="true"
+            bucket="database.${project.name}.3ev.me"
+            object="data.sql"
+            source="${db.data_path}/data.sql" />
+    </target>
+    
+    <!-- 
+        The zip targets
+    -->
+    <!-- Update DB structure from S3 -->
+    <target name="db:tar:upload" depends="needConfiguration, db:structure:dump, db:data:dump" description="Create and upload a tar of the project's data to S3">
+        <exec command="tar czf ${db.data_path}/${project.name}.tar.gz data/db/create.sql data/db/data.sql" />
+        
+        <s3put
+            createBuckets="true"
+            bucket="database.${project.name}.3ev.me"
+            object="${project.name}.tar.gz"
+            source="${db.data_path}/${project.name}.tar.gz" />
+    </target>
+    
+    <!-- Update DB structure from S3 -->
+    <target name="db:tar:download" depends="needConfiguration" description="Download a tar of the project's data from S3 and untar into data/db/">
+        <s3get
+            bucket="database.${project.name}.3ev.me"
+            object="${project.name}.tar.gz"
+            target="${db.data_path}/${project.name}.tar.gz" />
+        
+        <exec command="tar xzf ${db.data_path}/${project.name}.tar.gz" />
+    </target>
+    
+    <!-- meta tasks -->
+    <!--
+        Updates structure + data files
+        Call db:reload
+     -->
+    <target name="db:update" depends="db:structure:update, db:data:update, db:reload" description="Download structure, data from S3 and load">
+    </target>
+    
+    <!--
+        Drops + Creates the database
+        Loads structure + data
+    -->
+    <target name="db:reload" depends="db:structure:load, db:data:load" description="Recreate DB + load data">
+        <!-- see the 'depends' attribute -->
+    </target>
+</project>

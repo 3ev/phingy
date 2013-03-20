@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="" basedir="." default="...">    
+    <!-- start properties -->
+
+    <!-- Set timestamp -->
+    <tstamp/>
+    
+    <php expression="date('d-F-Y')" returnProperty="time.today" />
+
+    <!-- Override memory limit -->
+    <php expression="ini_set('memory_limit', '500M');" />
+
+    <!-- Full path to build-->
+    <exec command="pwd" dir="." checkreturn="true" outputProperty="build.path" />
+
+    <!-- This is where we store the configured properties -->
+    <property name="paths.properties" value="${build.path}/config/phing.properties" />
+    <property name="paths.project_properties" value="${build.path}/config/project.properties" />
+
+    <!-- Check if we have the properties file -->
+    <available file="${paths.properties}" property="hasPropertiesFile" />
+
+    <!-- Default typo3 source -->
+    <property name="typo3.source" value="4.7.1" />
+
+    <!-- Zend source -->
+    <property name="zend.source" value="1.11.11" />
+
+    <!-- Default database host -->
+    <property name="db.host" value="localhost" />
+
+    <!-- Default database root user -->
+    <property name="db.root.user" value="root" />
+
+    <!-- Default database root password -->
+    <property name="db.root.pass" value="" />
+
+    <!-- Default project name -->
+    <property name="project.name" value="" />
+
+    <!-- Default S3 key -->
+    <property name="s3.key" value="" />
+
+    <!-- Default S3 secret -->
+    <property name="s3.secret" value="" />
+
+    <!-- Path to shared source code -->
+    <property name="share.path" value="/share" />
+
+    <!-- Path to parent folder of project -->
+    <property name="build.parent_path" value="/var/www/vhosts" />
+
+    <!-- Include configuration -->
+    <property file="${paths.project_properties}" override="true" />
+    <property file="${paths.properties}" override="true" />
+
+    <!-- Set the include path -->
+    <includepath classpath="./library" />
+
+    <!-- Current directory name
+        Used for default property values
+    -->
+    <exec command="basename ${build.path}" dir="." checkreturn="true" outputProperty="build.basename" />
+
+    <!-- Load the PDOSQLEXEC task -->
+    <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask"/>
+
+    <!-- Load the dbdeploy task -->
+    <taskdef name="dbdeploy" classname="library.Phing.Task.MigrateTask"/>
+
+    <taskdef name="migrate:generate" classname="library.Phing.Task.Migrate.GenerateTask"/>
+
+    <!-- Exports properties to specified file -->
+    <target name="build:save_config" hidden="true">
+        <exportproperties targetfile="${paths.properties}" />
+    </target>
+
+    <!-- end properties -->
+
+
+    <!-- ======================================================================== -->
+    <!-- The configuration targets that phingy/build.xml expects ================ -->
+    <!-- ======================================================================== -->
+    <target name="needConfiguration" hidden="true">
+        <if>
+            <and>
+                <isset property="typo3.source" />
+                <isset property="typo3.index_file" />
+                <isset property="zend.source" />
+                <isset property="db.host" />
+                <isset property="db.user" />
+                <isset property="db.pass" />
+                <isset property="db.name" />
+                <isset property="db.root.user" />
+                <isset property="db.root.pass" />
+                <isset property="db.data_path" />
+                <isset property="build.name" />
+                <isset property="project.name" />
+                <isset property="build.url" />
+                <isset property="build.log_dir" />
+                <isset property="build.public_dir" />
+                <isset property="build.library_dir" />
+                <isset property="build.environment" />
+                <isset property="s3.key" />
+                <isset property="s3.secret" />
+            </and>
+            <then>
+                <property name="isConfigured" value="true" />
+            </then>
+            <else>
+                <property name="isConfigured" value="false" />
+                <phingcall target="build:config" />
+            </else>
+        </if>
+
+        <property file="${paths.properties}"  />
+        
+        <property name="amazon.key" value="${s3.key}" />
+        <property name="amazon.secret" value="${s3.secret}" />
+    </target>
+    
+    <target name="build:config" description="Configure build">
+        <echo msg="start build:config ================================" />
+        <phingcall target="project.build:config" />
+        <input propertyname="share.path" defaultValue="${share.path}" promptChar=" ?">Shared Path</input>
+        <exec
+            command="find ${share.path}/ -name 'typo3_src*' ! -name '*.gz' | cut -f 2- -d - | awk '{print $1&#34;,&#34; }' | tr -d '\n' | rev | cut -b 2- | rev"
+            escape="false"
+            outputproperty="typo3.versions"
+        />
+
+        <input propertyname="typo3.source" defaultValue="${typo3.source}" validargs="${typo3.versions}" promptChar=" ?">Typo3 source</input>
+        <input propertyname="typo3.index_file" defaultValue="t3index.php" promptChar=" ?">Typo3 index file</input>
+
+        <exec
+            command="find ${share.path} -name 'ZendFramework-*' ! -name '*.gz' | cut -f 2- -d - | awk '{print $1&#34;,&#34; }' | tr -d '\n' | rev | cut -b 2- | rev"
+            escape="false"
+            outputproperty="zend.versions"
+        />
+
+        <input propertyname="zend.source" defaultValue="${zend.source}" validargs="${zend.versions}" promptChar=" ?">Zend source</input>
+
+        <input propertyname="db.host" defaultValue="${db.host}" promptChar=" ?">MySQL Host</input>
+        <input propertyname="db.user" defaultValue="${build.basename}" promptChar=" ?">MySQL User</input>
+        <input propertyname="db.pass" defaultValue="${db.user}" promptChar=" ?">MySQL Password</input>
+        <input propertyname="db.name" defaultValue="${db.user}" promptChar=" ?">MySQL DB Name</input>
+        <input propertyname="db.root.user" defaultValue="${db.root.user}" promptChar=" ?">MySQL root User</input>
+        <input propertyname="db.root.pass" defaultValue="${db.root.pass}" promptChar=" ?">MySQL root Password</input>
+
+        <input propertyname="db.data_path" defaultValue="${build.path}/data/db" promptChar=" ?">DB data path</input>
+
+        <input propertyname="project.name" defaultValue="${project.name}" promptChar=" ?">Project Name</input>
+
+        <input propertyname="build.name" defaultValue="${build.basename}" promptChar=" ?">Build Name</input>
+        <input propertyname="build.url" defaultValue="${build.name}.3ev.info" promptChar=" ?">Build URL</input>
+        <input propertyname="build.log_dir" defaultValue="/var/log/dev/${build.name}" promptChar=" ?">Log directory</input>
+        <input propertyname="build.public_dir" defaultValue="${build.path}/htdocs" promptChar=" ?">Public directory</input>
+        <input propertyname="build.parent_path" defaultValue="${build.parent_path}" promptChar=" ?">Parent Direct</input>
+
+        <php expression="ucfirst(${project.name})" returnProperty="project.name.ucfirst" />
+
+        <input propertyname="build.library_namespace" defaultValue="${project.name.ucfirst}" promptChar=" ?">Library namespace</input>
+        <input propertyname="build.library_dir" defaultValue="${build.path}/library" promptChar=" ?">Library directory</input>
+        <input propertyname="build.environment" defaultValue="development" promptChar=" ?">Application environment</input>
+
+        <input propertyname="s3.key" defaultValue="${s3.key}" promptChar=" ?">S3 key</input>
+        <input propertyname="s3.secret" defaultValue="${s3.secret}" promptChar=" ?">S3 secret</input>
+
+        <phingcall target="build:save_config" />
+    </target>
+    
+    
+    <!-- ======================================================================== -->
+    <!-- The before / after targets that phingy/build.xml expects =============== -->
+    <!-- ======================================================================== -->
+    
+    <!--
+        Sets up the directories and permissions required by TYPO3.
+        Symlinks the sphinx configuration.
+        Symlinks TYPO3 into this environment. 
+        Caches the routes.
+    -->
+    <target name="platform:build:before" hidden="true">
+        <mkdir dir="${build.log_dir}" />
+        <mkdir dir="${build.public_dir}/typo3temp" />
+        <mkdir dir="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" />
+        <mkdir dir="${build.public_dir}/uploads" />
+        <mkdir dir="${db.data_path}" />
+        <mkdir dir="${build.path}/data/sphinx/xmlpipe" />
+        <mkdir dir="${build.library_dir}/cache" />
+        
+        <chmod file="${build.log_dir}" mode="0777" />
+        <chmod file="${build.public_dir}/uploads" mode="0777" />
+        <chmod file="${build.public_dir}/typo3temp" mode="0777" />
+        <chmod file="${build.public_dir}/typo3temp/Cache" mode="0777" />
+        <chmod file="${build.public_dir}/typo3temp/Cache/Code" mode="0777" />
+        <chmod file="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" mode="0777" />
+        <chmod file="${build.public_dir}/typo3conf" mode="0777" />
+        <chmod file="${build.public_dir}/typo3conf/ext" mode="0777" />
+        <chmod file="${build.library_dir}/cache" mode="0777" />
+        
+        <symlink target="${build.path}/config/sphinx.conf" link="${share.path}/sphinx/${build.name}.include" />
+        
+        <phingcall target="typo3:symlink" />
+        <phingcall target="typo3:routes:cache" />
+    </target>
+    
+    <!-- Symlink Sphinx -->
+    <target name="sphinx:symlink" depends="needConfiguration" description="Setup the Sphinx symlink">
+        <symlink target="${build.path}/config/sphinx.conf" link="${share.path}/sphinx/${build.name}.include" />
+    </target>
+    
+    <!-- Index Sphinx indexes -->
+    <target name="sphinx:index" depends="needConfiguration" description="Index all Sphinx indexes">
+        <exec command="sudo indexer --rotate ${build.name}_index ${build.name}_spiriant_products_index ${build.name}_spiriant_site_index" dir="${share.path}/sphinx" escape="false" passthru="true" />
+    </target>
+    
+    <!--
+        After build. Nothing here yet.
+    -->
+    <target name="platform:build:after" hidden="true">
+        <!-- Nothing -->
+    </target>
+    
+    <!-- ======================================================================== -->
+    <!-- TYPO3 targets. Used by the other targets =============================== -->
+    <!-- ======================================================================== -->
+    
+    <!-- 
+        Generates the requried typo3 symlinks
+    -->
+    <target name="typo3:symlink" depends="needConfiguration" description="Generates the requried typo3 symlinks">
+        <delete file="${build.public_dir}/${typo3.index_file}" />
+        <delete file="${build.public_dir}/t3lib" />
+        <delete file="${build.public_dir}/typo3" />
+        <delete file="${build.public_dir}/typo3src" />
+
+        <symlink target="${share.path}/typo3_src-${typo3.source}" link="${build.public_dir}/typo3src" />
+        <symlink target="${build.public_dir}/typo3src/index.php" link="${build.public_dir}/${typo3.index_file}" />
+        <symlink target="${build.public_dir}/typo3src/t3lib" link="${build.public_dir}/t3lib" />
+        <symlink target="${build.public_dir}/typo3src/typo3" link="${build.public_dir}/typo3" />
+    </target>
+
+    <!-- 
+        Creates the ENABLE_INSTALL_TOOL file
+    -->
+    <target name="typo3:install_tool" depends="needConfiguration" description="Creates the ENABLE_INSTALL_TOOL file">
+        <touch file="${build.public_dir}/typo3conf/ENABLE_INSTALL_TOOL" />
+    </target>
+    
+    <!-- 
+        Cache MCA routes so zend works inside TYPO3.
+    -->
+    <target name="typo3:routes:cache" depends="needConfiguration" description="Cache MCA routes so zend works inside TYPO3.">
+        <exec command="php htdocs/typo3conf/ext/zend_fe/cli/cacheRoutes.php" escape="false" />
+    </target>
+</project>
