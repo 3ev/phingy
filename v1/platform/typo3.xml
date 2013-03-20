@@ -229,7 +229,7 @@
     <!-- 
         Generates the requried typo3 symlinks
     -->
-    <target name="typo3:symlink" depends="needConfiguration" description="Generates the requried typo3 symlinks">
+    <target name="typo3:symlink" depends="needConfiguration" description="Generates the required typo3 symlinks">
         <delete file="${build.public_dir}/${typo3.index_file}" />
         <delete file="${build.public_dir}/t3lib" />
         <delete file="${build.public_dir}/typo3" />

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="" basedir="." default="...">
+    <!-- ==================================== -->
+    <!-- Add your project-specific tasks here -->
+    <!-- See https://github.com/3ev/phingy    -->
+    <!-- ==================================== -->    
+    
+    
+    
+    <!-- ========================================  -->
+    <!-- The hooks. This supports phingy V1.       -->
+    <!-- ========================================  -->    
+    
+    <target name="project.build:config" hidden="true">
+        <!-- This is where you get extra config for your project -->
+    </target>
+
+    <target name="project.build:before" hidden="true">
+        <!-- Do stuff before the build is run -->
+    </target>
+    
+    <target name="project.build:after" hidden="true">
+        <!-- Do stuff after the build is run -->
+    </target>
+    
+    <target name="project.build:housekeeping" hidden="true">
+        <!-- 
+            Delete your crap.
+            You must delete everything which doesn’t matter. Logs, temp files, caches, etc. Leave directory structure and permissions intact.
+         -->
+    </target>
+</project>
