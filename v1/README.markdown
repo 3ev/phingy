@@ -5,48 +5,47 @@ Phingy is a small collection of build scripts which you can mix together differe
 
 This gives you the build steps which you can view by typing 'phing -l':
 
-  $ phing -l
-  build                Build the project
-  build:clearcache     Clear cached YAML config
-  build:config         Configure build
-  build:housekeeping   Delete everything which isn't required for the running of the site. Logs etc
-  build:server         Symlink site into sites-enabled AND restart apache
-  build:skel           Applies configuration to skel files
-  db:create            Create the database including privileges
-  db:data:commit       Upload data to S3 from data/db/data.sql
-  db:data:dump         Dump DB structure into data/db/data.sql
-  db:data:empty        Truncate all tables
-  db:data:load         Empty the database and reload from data/db/data.sql
-  db:data:update       Download data file from S3 to data/db/data.sql
-  db:drop              Drop the database
-  db:recreate          Drops and recreates the database
-  db:reload            Recreate DB + load data
-  db:structure:commit  Upload structure to S3 from data/db/create.sql
-  db:structure:dump    Dump DB structure into data/db/create.sql
-  db:structure:load    Recreate the DB and load structure from data/db/create.sql
-  db:structure:update  Download structure file from S3 to data/db/create.sql
-  db:tar:download      Download a tar of the project's data from S3 and untar into data/db/
-  db:tar:upload        Create and upload a tar of the project's data to S3
-  db:update            Download structure, data from S3 and load
-  sphinx:index         Index all Sphinx indexes
-  sphinx:symlink       Setup the Sphinx symlink
-  typo3:install_tool   Creates the ENABLE_INSTALL_TOOL file
-  typo3:routes:cache   Cache MCA routes so zend works inside TYPO3.
-  typo3:symlink        Generates the required typo3 symlinks
+    $ phing -l
+    build                Build the project
+    build:clearcache     Clear cached YAML config
+    build:config         Configure build
+    build:housekeeping   Delete everything which isn't required for the running of the site. Logs etc
+    build:server         Symlink site into sites-enabled AND restart apache
+    build:skel           Applies configuration to skel files
+    db:create            Create the database including privileges
+    db:data:commit       Upload data to S3 from data/db/data.sql
+    db:data:dump         Dump DB structure into data/db/data.sql
+    db:data:empty        Truncate all tables
+    db:data:load         Empty the database and reload from data/db/data.sql
+    db:data:update       Download data file from S3 to data/db/data.sql
+    db:drop              Drop the database
+    db:recreate          Drops and recreates the database
+    db:reload            Recreate DB + load data
+    db:structure:commit  Upload structure to S3 from data/db/create.sql
+    db:structure:dump    Dump DB structure into data/db/create.sql
+    db:structure:load    Recreate the DB and load structure from data/db/create.sql
+    db:structure:update  Download structure file from S3 to data/db/create.sql
+    db:tar:download      Download a tar of the project's data from S3 and untar into data/db/
+    db:tar:upload        Create and upload a tar of the project's data to S3
+    db:update            Download structure, data from S3 and load
+    sphinx:index         Index all Sphinx indexes
+    sphinx:symlink       Setup the Sphinx symlink
+    typo3:install_tool   Creates the ENABLE_INSTALL_TOOL file
+    typo3:routes:cache   Cache MCA routes so zend works inside TYPO3.
+    typo3:symlink        Generates the required typo3 symlinks
 
 ## The namespaces
 
-  build:...     Everything to do with the basic build
-  db:...        Database stuff. Creating, loading, uploading, etc.
-  typo3:...     or whatever your platform is. All the platform-specific targets.
+    build:...     Everything to do with the basic build
+    db:...        Database stuff. Creating, loading, uploading, etc.
+    typo3:...     or whatever your platform is. All the platform-specific targets.
 
 Other targets might exist such as "sphinx:".
 
 You should name your project targets after your project to avoid any future clashes:
 
-  <target name="myproject:pingpong">
-  
-  </target>
+    <target name="myproject:pingpong">
+    </target>
 
 # The generic README for projects
 
@@ -54,9 +53,9 @@ You should name your project targets after your project to avoid any future clas
 
 A project must be buildable in the following steps:
 
-  git clone [the project] && cd [in the directory]
-  phing build
-  phing db:update
+    git clone [the project] && cd [in the directory]
+    phing build
+    phing db:update
 
 There must be NO other steps AT ALL otherwise YOU HAVE BROKEN IT. This means all search indexes, permissions, imports and the like must be run at build time and must be aware of whether they're running on development or production and STILL be safe.
 
@@ -76,12 +75,12 @@ This affects the _project.build:before_ and _project.build:after_ targets. It al
 
 Use:
 
-  phing db:update
+    phing db:update
 
 To get the structure or data, use the corresponding target:
 
-  phing db:structure:update
-  phing db:data:update
+    phing db:structure:update
+    phing db:data:update
 
 These both work from the files ./data/db/create.sql and ./data/db/data.sql.
 
@@ -89,7 +88,7 @@ These both work from the files ./data/db/create.sql and ./data/db/data.sql.
 
 Logs, temporary files and other junk accumulates on builds. To spring-clean your build run:
 
-  phing build:housekeeping
+    phing build:housekeeping
 
 
 # Setting up your project
