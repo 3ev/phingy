@@ -5,10 +5,11 @@
     <!-- Set timestamp -->
     <tstamp/>
     
-    <php expression="date('d-F-Y')" returnProperty="time.today" />
+    <!-- used for permanent backups -->
+    <php expression="date('d-F-Y')" returnProperty="time.today" level="verbose" />
 
     <!-- Override memory limit -->
-    <php expression="ini_set('memory_limit', '500M');" />
+    <php expression="ini_set('memory_limit', '-1');" level="verbose" />
 
     <!-- Full path to build-->
     <exec command="pwd" dir="." checkreturn="true" outputProperty="build.path" />
@@ -173,7 +174,10 @@
         Symlinks TYPO3 into this environment. 
         Caches the routes.
     -->
-    <target name="platform:build:before" hidden="true">
+    <target name="platform:build:before" hidden="true" description="Sets up the directories and permissions required by TYPO3.
+        Symlinks the sphinx configuration.
+        Symlinks TYPO3 into this environment. 
+        Caches the routes.">
         <mkdir dir="${build.log_dir}" />
         <mkdir dir="${build.public_dir}/typo3temp" />
         <mkdir dir="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" />
@@ -192,7 +196,11 @@
         <chmod file="${build.public_dir}/typo3conf/ext" mode="0777" />
         <chmod file="${build.library_dir}/cache" mode="0777" />
         
+        <!-- 
+        Deprecated options. 
+        Let here so you don't add it if that's what you're thinking.
         <symlink target="${build.path}/config/sphinx.conf" link="${share.path}/sphinx/${build.name}.include" />
+        -->
         
         <phingcall target="typo3:symlink" />
         <phingcall target="typo3:routes:cache" />
@@ -200,6 +208,7 @@
     
     <!-- Symlink Sphinx -->
     <target name="sphinx:symlink" depends="needConfiguration" description="Setup the Sphinx symlink">
+<!-- NO NO NO -->
         <symlink target="${build.path}/config/sphinx.conf" link="${share.path}/sphinx/${build.name}.include" />
     </target>
     
@@ -212,7 +221,8 @@
         After build. Nothing here yet.
     -->
     <target name="platform:build:after" hidden="true">
-        <!-- Nothing -->
+      <echo msg="Running platform:build:after" />
+      <!-- Nothing to do -->
     </target>
     
     <!-- ======================================================================== -->
@@ -228,7 +238,7 @@
         <delete file="${build.public_dir}/typo3" />
         <delete file="${build.public_dir}/typo3src" />
 
-        <symlink target="${share.path}/typo3_src-${typo3.source}" link="${build.public_dir}/typo3src" />
+        <symlink target="${share.path}/typo3/typo3_src-${typo3.source}" link="${build.public_dir}/typo3src" />
         <symlink target="${build.public_dir}/typo3src/index.php" link="${build.public_dir}/${typo3.index_file}" />
         <symlink target="${build.public_dir}/typo3src/t3lib" link="${build.public_dir}/t3lib" />
         <symlink target="${build.public_dir}/typo3src/typo3" link="${build.public_dir}/typo3" />

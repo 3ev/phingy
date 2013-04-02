@@ -30,21 +30,22 @@
         </chmod>
     </target>
     
-    <!-- Remove cached config files -->
     <target name="build" description="Build the project" depends="needConfiguration">
         <phingcall target="project.build:before" />
+        <phingcall target="platform:build:before" />
         <phingcall target="build:skel" />
         <phingcall target="db:update" />
         <phingcall target="project.build:after" />
+        <phingcall target="platform:build:after" />
     </target>
-    
-    <target name="build:clearcache" depends="needConfiguration" description="Clear cached YAML config">
+
+    <!-- Remove cached config files -->
+    <target name="build:clearcache" depends="needConfiguration" description="Clear cached YAML config (Is this used?)">
         <exec command="sudo rm htdocs/typo3temp/config_cache*" escape="false" />
     </target>
     
     <target name="build:server" description="Symlink site into sites-enabled AND restart apache">
-        <exec command="ln -s ${build.path}/config/httpd.include /etc/apache2/sites-enabled/${build.name}" escape="false" />
-        <exec command="sudo service apache2 reload" />    
+        <echo msg="Deprecated. Doing nothing" level="error" />
     </target>
     
     <target name="build:housekeeping" description="Delete everything which isn't required for the running of the site. Logs etc">

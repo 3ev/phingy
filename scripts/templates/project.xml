@@ -11,22 +11,26 @@
     <!-- The hooks. This supports phingy V1.       -->
     <!-- ========================================  -->    
     
-    <target name="project.build:config" hidden="true">
-        <!-- This is where you get extra config for your project -->
+    <target name="project.build:config" description="project.build:config" hidden="true">
+      <echo msg="Running project.build:config" />
+      <!-- This is where you get extra config for your project -->
     </target>
 
     <target name="project.build:before" hidden="true">
-        <!-- Do stuff before the build is run -->
+      <echo msg="Running project.build:before" />
+      <!-- Do stuff before the build is run -->
     </target>
     
     <target name="project.build:after" hidden="true">
-        <!-- Do stuff after the build is run -->
+      <echo msg="Running project.build:after" />
+      <!-- Do stuff after the build is run -->
     </target>
     
     <target name="project.build:housekeeping" hidden="true">
-        <!-- 
-            Delete your crap.
-            You must delete everything which doesn’t matter. Logs, temp files, caches, etc. Leave directory structure and permissions intact.
-         -->
+      <echo msg="Running project.build:housekeeping" />
+      <!-- 
+        Delete your crap.
+        You must delete everything which doesn’t matter. Logs, temp files, caches, etc. Leave directory structure and permissions intact.
+       -->
     </target>
 </project>
