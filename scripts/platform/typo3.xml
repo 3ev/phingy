@@ -65,10 +65,6 @@
     <!-- Load the PDOSQLEXEC task -->
     <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask"/>
 
-    <!-- Load the dbdeploy task -->
-    <taskdef name="dbdeploy" classname="library.Phing.Task.MigrateTask"/>
-
-    <taskdef name="migrate:generate" classname="library.Phing.Task.Migrate.GenerateTask"/>
 
     <!-- Exports properties to specified file -->
     <target name="build:save_config" hidden="true">

@@ -2,20 +2,9 @@
 <project name="build" basedir="." default="readme">
     <exec command="pwd" dir="." checkreturn="true" outputProperty="build.path" />
     <property name="phingy.path" value="${build.path}/vendor/3ev/phingy" />
-    <if>
-        <available file='${phingy.path}' type='dir' />
-        <then>        
-            <echo msg="LOADING PHINGY FROM ${phingy.path}" level="error" />
             
-            <import file="${build.path}/config/project.xml" />
-            <import file="${phingy.path}/scripts/core/build.xml" />
-            <import file="${phingy.path}/scripts/platform/typo3.xml" />
-            <import file="${phingy.path}/scripts/core/database.xml" />
-            <!-- Go away! Don't add stuff here! -->
-        </then>
-        <else>
-            <echo msg="FATAL ERROR: Cannot load phingy from '${phingy.path}'" level="error" />
-            <echo msg="Start here for help: https://github.com/3ev/phingy" level="error" />
-        </else>
-    </if>
+    <import file="${build.path}/config/project.xml" />
+    <import file="${phingy.path}/scripts/core/build.xml" />
+    <import file="${phingy.path}/scripts/platform/typo3.xml" />
+    <import file="${phingy.path}/scripts/core/database.xml" />
 </project>
