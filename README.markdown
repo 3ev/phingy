@@ -1,5 +1,7 @@
 # Phingy
 
+Current version: `0.0.1`
+
 Phingy is a small collection of build scripts which you can mix together differently depending on your project. To use these scripts, you include the required ones in your build script starting with your own project.xml. 
 
 Using Phingy will mean that your project will be able to be built in its entirety with a simple
@@ -14,7 +16,7 @@ call. If you need to do anything else, it's not doing its job!
 
 Phingy is installed via [Composer](http://getcomposer.org/). Add the following to your project's `composer.json` and run `composer install`:
 
-```
+```json
 {
     "repositories": [
         {
@@ -35,17 +37,21 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
 
 Specify a particular version with:
 
-```
-"require": {
-    "3ev/phingy": "0.0.1"
+```json
+{
+    "require": {
+        "3ev/phingy": "0.0.1"
+    }
 }
 ```
 
 or to use the latest unstable build:
 
-```
-"require": {
-    "3ev/phingy": "dev-master"
+```json
+{
+    "require": {
+        "3ev/phingy": "dev-master"
+    }
 }
 ```
 
@@ -85,13 +91,13 @@ project:build:housekeeping Cleanup any uneeded files or data
 
 Each platform includes each of these hooks as well, of the form `[platform]:build:before` etc. If you'd like to make use of a platform, simply include it with:
 
-```
+```xml
 <import file="${phingy.path}/scripts/platform/[platform].xml" />
 ```
 
 and then call each of its hooks in your project-specific hooks:
 
-```
+```xml
 <target name="project:build:before">
     <phingcall target="[platform]:build:before" />
 </target>
@@ -125,4 +131,4 @@ Refer to these tasks to see how you can achieve this yourself.
 
 ## About ./build.xml
 
-`build.xml` sits in the root of your project, and is symlinked from `vendor/`. You should add this file to you `.gitignore`.
+`build.xml` sits in the root of your project, and is symlinked from `vendor/`. You should add this file to your `.gitignore`.
