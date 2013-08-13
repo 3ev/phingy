@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="" basedir="." default="...">
+
+
+
+
+    <!-- ==================================== -->
+    <!--             Dependencies             -->
+    <!-- ==================================== --> 
+    
+
+
+
+    <import file="${phingy.path}/scripts/platform/typo3.xml" />
+    <import file="${phingy.path}/scripts/platform/sphinx.xml" />
+    
+
+
+
+    <!-- ==================================== -->
+    <!--                Tasks                 -->
+    <!-- ==================================== -->
+
+
+
+    
+    <target name="project:build:before" hidden="true">
+        <echo msg="Running project:build:before" />
+        <phingcall target="typo3:build:before" />
+        <phingcall target="sphinx:build:before" />
+    </target>
+    
+
+    <target name="project:build:after" hidden="true">
+        <echo msg="Running project:build:after" />
+        <phingcall target="typo3:build:after" />
+        <phingcall target="sphinx:build:after" />
+    </target>
+    
+
+    <target name="project:build:housekeeping" hidden="true">
+        <echo msg="Running project:build:housekeeping" />
+        <phingcall target="typo3:build:housekeeping" />
+        <phingcall target="sphinx:build:housekeeping" />
+    </target>
+
+
+
+
+</project>

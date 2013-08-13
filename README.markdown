@@ -1,178 +1,128 @@
-
 # Phingy
 
 Phingy is a small collection of build scripts which you can mix together differently depending on your project. To use these scripts, you include the required ones in your build script starting with your own project.xml. 
 
-This gives you the build steps which you can view by typing 'phing -l':
+Using Phingy will mean that your project will be able to be built in its entirety with a simple
 
-    $ phing -l
-    build                Build the project
-    build:clearcache     Clear cached YAML config
-    build:config         Configure build
-    build:housekeeping   Delete everything which isn't required for the running of the site. Logs etc
-    build:server         Symlink site into sites-enabled AND restart apache
-    build:skel           Applies configuration to skel files
-    db:create            Create the database including privileges
-    db:data:commit       Upload data to S3 from data/db/data.sql
-    db:data:dump         Dump DB structure into data/db/data.sql
-    db:data:empty        Truncate all tables
-    db:data:load         Empty the database and reload from data/db/data.sql
-    db:data:update       Download data file from S3 to data/db/data.sql
-    db:drop              Drop the database
-    db:recreate          Drops and recreates the database
-    db:reload            Recreate DB + load data
-    db:structure:commit  Upload structure to S3 from data/db/create.sql
-    db:structure:dump    Dump DB structure into data/db/create.sql
-    db:structure:load    Recreate the DB and load structure from data/db/create.sql
-    db:structure:update  Download structure file from S3 to data/db/create.sql
-    db:tar:download      Download a tar of the project's data from S3 and untar into data/db/
-    db:tar:upload        Create and upload a tar of the project's data to S3
-    db:update            Download structure, data from S3 and load
-    sphinx:index         Index all Sphinx indexes
-    sphinx:symlink       Setup the Sphinx symlink
-    typo3:install_tool   Creates the ENABLE_INSTALL_TOOL file
-    typo3:routes:cache   Cache MCA routes so zend works inside TYPO3.
-    typo3:symlink        Generates the required typo3 symlinks
+```
+$ phing build
+```
 
-## The namespaces
+call. If you need to do anything else, it's not doing its job!
 
-    build:...     Everything to do with the basic build
-    db:...        Database stuff. Creating, loading, uploading, etc.
-    typo3:...     or whatever your platform is. All the platform-specific targets.
+## Installation
 
-Other targets might exist such as "sphinx:".
+Phingy is installed via [Composer](http://getcomposer.org/). Add the following to your project's `composer.json` and run `composer install`:
 
-You should name your project targets after your project to avoid any future clashes:
+```
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/3ev/phingy"
+        }
+    ],
+    "require": {
+        "3ev/phingy": "dev-master"
+    },
+    "scripts": {
+        "post-package-install": [
+            "Ev\\Phingy\\ComposerScripts::postPackageInstall"
+        ]
+    }
+}
+```
 
-    <target name="myproject:pingpong">
-    </target>
+Specify a particular version with:
 
-# The generic README for projects
+```
+"require": {
+    "3ev/phingy": "0.0.1"
+}
+```
 
-## Building
+or to use the latest unstable build:
 
-A project must be buildable in the following steps:
+```
+"require": {
+    "3ev/phingy": "dev-master"
+}
+```
 
-    git clone [the project] && cd [in the directory]
-    phing build
-    phing db:update
+As Phingy is a private Github repo, you will be prompted for your username and password the first time you install it on a project.
 
-There must be NO other steps AT ALL otherwise YOU HAVE BROKEN IT. This means all search indexes, permissions, imports and the like must be run at build time and must be aware of whether they're running on development or production and STILL be safe.
+## Avaiable tasksets
 
-## Deployment build tasks
+Phingy ships with a set of base tasks and some platform specific tasks that you can use in your project. Use `$ phing -l` to see what's available, but a brief overview is as follows:
 
-The "build" target will be run on automated deployments so this _must and must only_:
+### Core
 
-- setup the code so that it is working
-- setup all required directories and permissions
-- ensure apache config, sphinx config and the like are created (but no symlinking is required)
-- _Not_ load any data (as deployment is done to production where the database will exist)
-- _Not_ restart any process (since these will be done by the deployment scripts)
+- [build](https://github.com/3ev/phingy/blob/master/scripts/core/build.xml)
+Core set of tasks and framework hooks.
+- [db](https://github.com/3ev/phingy/blob/master/scripts/core/database.xml)
+Database specific functionality. Each platform will include this as a dependency if it's needed - you will not have to do this yourself.
 
-This affects the _project.build:before_ and _project.build:after_ targets. It also mandates that all new configuration follows convention rather than configuration (see below).
+### Platform specific
 
-## Working with data
+- [typo3](https://github.com/3ev/phingy/blob/master/scripts/platform/typo3.xml)
+Typo3 specific tasks (includes [db](https://github.com/3ev/phingy/blob/master/scripts/core/database.xml)). Will set up Typo3 on build, and provides some utility methods.
+- [sphinx](https://github.com/3ev/phingy/blob/master/scripts/platform/sphinx.xml)
+Sphinx specific tasks. Provides tasks to index Sphinx data for the project.
+- [wordpress](https://github.com/3ev/phingy/blob/master/scripts/platform/wordress.xml)
+Not yet implemented.
 
-Use:
+## Setting up your project with Platforms
 
-    phing db:update
+When you run `composer install`, you will be prompted to pick a template to use for you project. Currently, only 'default' and 'typo3' are available. Selecting a template will create a file called `project.xml` in your projects' `config/` directory.
 
-To get the structure or data, use the corresponding target:
+The `project.xml` file includes 3 hooks you can add to for project-specific tasks. These are:
 
-    phing db:structure:update
-    phing db:data:update
+```
+project:build:before       Run some tasks before `build`
+project:build:after        Run some tasks after `build`
+project:build:housekeeping Cleanup any uneeded files or data
+```
 
-These both work from the files ./data/db/create.sql and ./data/db/data.sql.
+Each platform includes each of these hooks as well, of the form `[platform]:build:before` etc. If you'd like to make use of a platform, simply include it with:
 
-## Cleaning away the crap
+```
+<import file="${phingy.path}/scripts/platform/[platform].xml" />
+```
 
-Logs, temporary files and other junk accumulates on builds. To spring-clean your build run:
+and then call each of its hooks in your project-specific hooks:
 
-    phing build:housekeeping
+```
+<target name="project:build:before">
+    <phingcall target="[platform]:build:before" />
+</target>
+```
 
+**Note:** If you pick a non-default template (like 'typo3'), all of this will be handled for you.
 
-# Setting up your project
+## Adding your own project specific tasks and config
 
-Your project is setup by including a project.xml for your project and then some shared build scripts.
+You can add any of your own tasks in `config/project.xml`. These should be namespaced with `project:`. You can either add standalone tasks, or call them in any of the available hooks.
 
-1. Replace your ./build.xml with the contents of ./v1/templates/build.xml
-2. Create config/project.xml and copy the contents from ./v1/templates/project.xml
-3. Copy over all your project-specific tasks to project.xml. This would be things like: _iopc:do_something_ and _simply:importer_.
-4. Add appropriate use of hooks to project.build:config etc, at the bottom of project.xml.
-5. Implement project.build:housekeeping.
-6. Delete bin/dump_structure and bin/dump_data. You don’t need them anymore.
+### Overriding existing tasks
 
+If you need to, you can override built in tasks by creating a new task with the same name in you `project.xml`. You shouldn't have to do this though, as the built in hooks provide enough flexibility for you to customise tasks.
 
-# About ./build.xml
+### Adding extra config
 
-Build.xml simply includes the other build scripts so you can run them from your project. The first file to be included is project.xml so that it can override all targets in the others, however this is to be avoided lest you want a beating from the build warriors.
+You add should any project specific config to `config/project.properties` if possible. If you need to prompt the user for it during build, you can create your own `project:need_configuration` task and depend on it.
 
+## Deploying to production servers
 
-A typical order of inclusion is:
+When deploying to production, you should still be able to use `phing build`. Tasks can use the `${build.environment}` variable to decide whether or not they should be run. Some built in taks that make use of this are:
 
-    config/project.xml.   Your project tasks go here along with required hooks into the build process.
-    platform/typo3.xml.   Tasks to get TYPO3 configured go here. These are generically called "platform" tasks. 
-                          The configuration task goes here. See below for discussion.
-    database.xml.         Tasks relating to getting the database loaded go here. 
-    build.xml.            The overall build script.
+```
+build:server      The server will only be symlinked and restarted in development
+sphinx:symlink    Sphinx will only be symlinked in development
+typo3:build:after This will update the database, but only in development
+```
 
-You shouldn't have to change this order and should avoid doing so. The order matters: the more specific scripts _must_ come first so they can override the more general. Your build.xml is likely to look like this:
+Refer to these tasks to see how you can achieve this yourself.
 
-# The configuration task (needConfiguration and build:config)
+## About ./build.xml
 
-The configuration task is the step which asks you for all the required info to run the project. This differs mostly with the platform, so you'll find the task in platform/[something].xml. 
-
-For example, the TYPO3 configuration task asks for the TYPO3 version.
-
-If your project needs extra configuration or options, do one of two things:
-
-1. Just use good defaults and don't ask the user (the builder). For example, if you have a shop to link to, put the production URL in there along with "shop.${your build URL}" so it's _convention_ rather than _configuration_.
-
-Or
-
-2. Override the "build:config" target in your project.xml. 
-
-Option 1 is _strongly_ preferred. Option 2 is quick and dirty, but will make your build scripts harder to maintain in future.
-
-As a examples of option 1, suppose you have a shared library and you want to assume that it will be in the shared location. Do this:
-
-    <property name="library_location" value="${share.path}/mylibrary/" />
-    <!-- and use it -->
-    <target name="exampletask">
-        <echo msg="This gives us: ${library_location}" />
-    </target>
-
-Or if you have a second domain (e.g. a shop), do this:
-
-    <property name="shop_url" value="shop.${build.url}" />
-    <!-- And use it -->
-    <target name="exampletask">
-        <echo msg="This gives us: ${shop_url}" />
-    </target>
-
-
-# Targets
-
-If you _have_ to override a core target (e.g. "readme" or "build:build") then you create a target of that name in project.xml. The project.xml file overrides all the others because it is included first in your projects build.xml file.
-
-There are a few standard hooks, which are actually just targets in your project.xml file that are called at specific points in the build process.
-These are project.build:config and project.build:before and can be found in your project.xml. 
-
-Your projects MUST support these targets otherwise the build will call the target, find it doesn't exist and throw an error. These targets are usually not going to be run directly, so you can hide them from the list of tasks by setting the ' hidden="true"' attribute.
-
-# Versions of phingy
-
-Phingy is installed on the server as a shared library in:
-
-    /share/phingy/v1/
-
-This will be the case for all production code, but you might want to change this. To include from somewhere else just change the line in your build script:
-
-    <property name="phingy.path" value="/var/www/vhosts/phingy/v1/" />
-
-E.g. to
-
-    <property name="phingy.path" value="/home/bobby/code/phingy/v2" />
-
-
-The phingy sources (i.e. the git project) contain all versions, so you can easily check it out and hack around with the different versions. If you have improvements or fixes, just submit them as pull requests as usual.
+`build.xml` sits in the root of your project, and is symlinked from `vendor/`. You should add this file to you `.gitignore`.
