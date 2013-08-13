@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="" basedir="." default="...">
+
+
+
+
+    <!-- ==================================== -->
+    <!--              Properties              -->
+    <!-- ==================================== -->
+
+
+
+
+    <!-- This is where we store the configured properties -->
+    <property name="paths.properties" value="${build.path}/config/phing.properties" />
+
+    <!-- This is where we load static properties -->
+    <property name="paths.project_properties" value="${build.path}/config/project.properties" />
+
+    <!-- Check if we have the properties file -->
+    <available file="${paths.properties}" property="hasPropertiesFile" />
+
+    <!-- Current directory name, Used for default property values-->
+    <exec command="basename ${build.path}" dir="." checkreturn="true" outputProperty="build.basename" />
+
+    <property name="share.path" value="/share" />
+    <property name="build.name" value="${build.basename}" />
+    <property name="build.public_dir" value="${build.path}/htdocs" />
+    <property name="build.log_dir" value="${build.path}/logs" />
+
+    <!-- Include configuration -->
+    <property file="${paths.project_properties}" override="true" />
+    <property file="${paths.properties}" override="true" />
+
+
+
+
+    <!-- ==================================== -->
+    <!--                Tasks                 -->
+    <!-- ==================================== -->
+
+
+
+    
+    <!--
+        Base task: README
+    -->
     <target name="readme" hidden="true">
         <echo msg="===================================" />
         <echo msg="===================================" />
@@ -10,8 +55,43 @@
         <echo msg="===================================" />
         <echo msg="===================================" />
     </target>
-    
-    <target name="build:skel" description="Applies configuration to skel files" depends="needConfiguration">
+
+
+    <!--
+        Required configuration for all tasks.
+    -->
+    <target name="build:need_configuration" hidden="true">
+        <if>
+            <and>
+                <isset property="build.environment" />
+                <isset property="build.url" />
+            </and>
+            <then></then>
+            <else>
+                <phingcall target="build:config" />
+            </else>
+        </if>
+    </target>
+
+
+    <!--
+        Configure the database.
+        Call this in the platform config if it requires a database
+    -->
+    <target name="build:config" description="Configure build" hidden="true">
+        <echo msg="Configuring build ================================" />
+        
+        <input propertyname="build.environment" defaultValue="development" promptChar=" ?" validArgs="development,production">Environment</input>
+        <input propertyname="build.url" defaultValue="${build.name}.3ev.in" promptChar=" ?">Build URL</input>
+
+        <phingcall target="build:save_config" />
+    </target>
+
+
+    <!--
+        Applies configuration to skel files
+    -->    
+    <target name="build:skel" description="Applies configuration to skel files">
         <echo msg="Skel files..." />
 
         <copy todir="" overwrite="true">
@@ -32,25 +112,61 @@
         </chmod>
     </target>
     
-    <target name="build" description="Build the project" depends="needConfiguration">
-        <phingcall target="project.build:before" />
-        <phingcall target="platform:build:before" />
-        <phingcall target="build:skel" />
-        <phingcall target="db:update" />
-        <phingcall target="project.build:after" />
-        <phingcall target="platform:build:after" />
+
+    <!--
+        Symlink site into sites-enabled AND restart Apache. Will only run in development.
+    --> 
+    <target name="build:server" description="Symlink site into sites-enabled AND restart Apache">
+        <if>
+            <equals arg1="${build.environment}" arg2="development" />
+            <then>
+                <echo message="Symlinking site as in development" />
+                <exec command="sudo ln -s ${build.path}/config/httpd.include /etc/apache2/sites-enabled/${build.name}" />
+                <exec command="sudo service apache2 reload" />
+            </then>
+            <else>
+                <echo message="In production, did not symlink" />
+            </else>
+        </if>
+    </target>
+    
+
+    <!--
+        Housekeeping task
+    -->
+    <target name="build:housekeeping" description="Delete everything which isn't required for the running of the site. Logs etc">
+        <phingcall target="project:build:housekeeping" />
     </target>
 
-    <!-- Remove cached config files -->
-    <target name="build:clearcache" depends="needConfiguration" description="Clear cached YAML config (Is this used?)">
-        <exec command="sudo rm htdocs/typo3temp/config_cache*" escape="false" />
+
+    <!--
+        Exports properties to specified ${paths.properties}
+    -->
+    <target name="build:save_config" hidden="true">
+        <exportproperties targetfile="${paths.properties}" />
     </target>
+
+
+    <!--
+        The main build task
+    -->
+    <target name="build" description="Build the project">
+        <mkdir dir="${build.log_dir}" />
+        <chmod file="${build.log_dir}" mode="0777" />
+        <touch file="${build.log_dir}/apache_access.log" />
+        <chmod file="${build.log_dir}/apache_access.log" mode="0777" />
+        <touch file="${build.log_dir}/apache_error.log" />
+        <chmod file="${build.log_dir}/apache_error.log" mode="0777" />
+        <touch file="${build.log_dir}/php_errors" /> 
+        <chmod file="${build.log_dir}/php_errors" mode="0777" />
+
+        <phingcall target="project:build:before" />
+        <phingcall target="build:skel" />
+        <phingcall target="project:build:after" />
+        <phingcall target="build:server" />
+    </target>
+
     
-    <target name="build:server" description="Symlink site into sites-enabled AND restart apache">
-        <echo msg="Deprecated. Doing nothing" level="error" />
-    </target>
+
     
-    <target name="build:housekeeping" description="Delete everything which isn't required for the running of the site. Logs etc">
-        <phingcall target="project.build:housekeeping" />
-    </target>
 </project>

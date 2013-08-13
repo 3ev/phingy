@@ -1,192 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="" basedir="." default="...">    
-    <!-- start properties -->
-
-    <!-- Set timestamp -->
-    <tstamp/>
     
-    <!-- used for permanent backups -->
-    <php expression="date('d-F-Y')" returnProperty="time.today" level="verbose" />
 
-    <!-- Override memory limit -->
-    <php expression="ini_set('memory_limit', '-1');" level="verbose" />
 
-    <!-- Full path to build-->
-    <exec command="pwd" dir="." checkreturn="true" outputProperty="build.path" />
 
-    <!-- This is where we store the configured properties -->
-    <property name="paths.properties" value="${build.path}/config/phing.properties" />
-    <property name="paths.project_properties" value="${build.path}/config/project.properties" />
+    <!-- ==================================== -->
+    <!--             Dependencies             -->
+    <!-- ==================================== -->
 
-    <!-- Check if we have the properties file -->
-    <available file="${paths.properties}" property="hasPropertiesFile" />
+
+
+
+    <import file="${phingy.path}/scripts/core/database.xml" />
+
+
+
+
+    <!-- ==================================== -->
+    <!--              Properties              -->
+    <!-- ==================================== -->
     
-    <!-- logs go in ./logs/ -->
-    <property name="build.log_dir" value="${build.path}/logs/" />
-    <property name="db.data_path" value="${build.path}/data/db" />
-    <property name="build.public_dir" value="${build.path}/htdocs" />
+
+
+
     <property name="build.library_dir" value="${build.path}/library" />
-
-    <!-- Default typo3 source -->
-    <property name="typo3.source" value="4.7.1" />
-
-    <!-- Zend source -->
-    <property name="zend.source" value="1.11.11" />
-    
-    <!-- Zend source -->
     <property name="typo3.index_file" value="t3index.php" />
-    
-    <!-- Default database host -->
-    <property name="db.host" value="localhost" />
-
-    <!-- Default database root user -->
-    <property name="db.root.user" value="root" />
-
-    <!-- Default database root password -->
-    <property name="db.root.pass" value="" />
-
-    <!-- Default project name -->
-    <property name="project.name" value="" />
-
-    <!-- Default S3 key -->
-    <property name="s3.key" value="" />
-
-    <!-- Default S3 secret -->
-    <property name="s3.secret" value="" />
-
-    <!-- Path to shared source code -->
-    <property name="share.path" value="/share" />
-    
-    <!-- Include configuration -->
-    <property file="${paths.project_properties}" override="true" />
-    <property file="${paths.properties}" override="true" />
+    <property name="amazon.key" value="${s3.key}" />
+    <property name="amazon.secret" value="${s3.secret}" />
 
     <!-- Set the include path -->
     <includepath classpath="./library" />
 
-    <!-- Current directory name
-        Used for default property values
+
+
+
+    <!-- ==================================== -->
+    <!--                Tasks                 -->
+    <!-- ==================================== -->
+
+
+
+
+    <!--
+        Required Typo3 configuration
     -->
-    <exec command="basename ${build.path}" dir="." checkreturn="true" outputProperty="build.basename" />
-
-    <!-- Load the PDOSQLEXEC task -->
-    <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask"/>
-
-
-    <!-- Exports properties to specified file -->
-    <target name="build:save_config" hidden="true">
-        <exportproperties targetfile="${paths.properties}" />
-    </target>
-
-    <!-- end properties -->
-
-
-    <!-- ======================================================================== -->
-    <!-- The configuration targets that phingy/build.xml expects ================ -->
-    <!-- ======================================================================== -->
-    <target name="needConfiguration" hidden="true">
+    <target name="typo3:need_configuration" hidden="true">
         <if>
             <and>
                 <isset property="typo3.source" />
                 <isset property="typo3.index_file" />
-                <isset property="zend.source" />
-                <isset property="db.host" />
-                <isset property="db.user" />
-                <isset property="db.pass" />
-                <isset property="db.name" />
-                <isset property="db.root.user" />
-                <isset property="db.root.pass" />
-                <isset property="db.data_path" />
-                <isset property="build.name" />
-                <isset property="project.name" />
-                <isset property="build.url" />
-                <isset property="build.log_dir" />
-                <isset property="build.public_dir" />
                 <isset property="build.library_dir" />
-                <isset property="build.environment" />
-                <isset property="s3.key" />
-                <isset property="s3.secret" />
             </and>
             <then>
-                <property name="isConfigured" value="true" />
+                <property name="typo3.is_configured" value="true" />
             </then>
             <else>
-                <property name="isConfigured" value="false" />
-                <phingcall target="build:config" />
+                <property name="typo3.is_configured" value="false" />
+                <phingcall target="typo3:build:config" />
             </else>
         </if>
-
-        <property file="${paths.properties}"  />
-        
-        <property name="amazon.key" value="${s3.key}" />
-        <property name="amazon.secret" value="${s3.secret}" />
     </target>
     
-    <target name="build:config" description="Configure build">
-        <echo msg="start build:config ================================" />
-        <phingcall target="project.build:config" />
+
+    <!--
+        Setup Typo3 config
+    -->
+    <target name="typo3:build:config" description="Configure Typo3 Build" depends="db:build:config" hidden="true">
+        <echo msg="Configuring Typo3 ================================" />
+
         <exec
-            command="find ${share.path}/typo3/ -name 'typo3_src*' ! -name '*.gz' | cut -f 2- -d - | awk '{print $1&#34;,&#34; }' | tr -d '\n' | rev | cut -b 2- | rev"
+            command="find ${share.path}/ -name 'typo3_src*' ! -name '*.gz' | cut -f 2- -d - | awk '{print $1&#34;,&#34; }' | tr -d '\n' | rev | cut -b 2- | rev"
             escape="false"
             outputproperty="typo3.versions"
         />
 
-        <input propertyname="typo3.source" defaultValue="${typo3.source}" validargs="${typo3.versions}" promptChar=" ?">Typo3 source</input>
-        <exec
-            command="find ${share.path}/zend/ -name 'ZendFramework-*' ! -name '*.gz' | cut -f 2- -d - | awk '{print $1&#34;,&#34; }' | tr -d '\n' | rev | cut -b 2- | rev"
-            escape="false"
-            outputproperty="zend.versions"
-        />
+        <input propertyname="typo3.source" defaultValue="6.1.3" validargs="${typo3.versions}" promptChar=" ?">Typo3 source</input>
 
-        <input propertyname="db.host" defaultValue="${db.host}" promptChar=" ?">MySQL Host</input>
-        <input propertyname="db.user" defaultValue="${build.basename}" promptChar=" ?">MySQL User</input>
-        <input propertyname="db.pass" defaultValue="${db.user}" promptChar=" ?">MySQL Password</input>
-        <input propertyname="db.name" defaultValue="${db.user}" promptChar=" ?">MySQL DB Name</input>
-        <input propertyname="db.root.user" defaultValue="${db.root.user}" promptChar=" ?">MySQL root User</input>
-        <input propertyname="db.root.pass" defaultValue="${db.root.pass}" promptChar=" ?">MySQL root Password</input>
-        <input propertyname="project.name" defaultValue="${project.name}" promptChar=" ?">Project Name</input>
-        <input propertyname="build.name" defaultValue="${build.basename}" promptChar=" ?">Build Name</input>
-        <input propertyname="build.url" defaultValue="${build.name}.3ev.info" promptChar=" ?">Build URL</input>
-        <input propertyname="build.environment" defaultValue="development" promptChar=" ?">Application environment</input>
-            
-        <!--
-        Deprecated options. 
-        Let here so you don't add it if that's what you're thinking.
-        <input propertyname="db.data_path" defaultValue="${build.path}/data/db" promptChar=" ?">DB data path</input>
-        <input propertyname="build.log_dir" defaultValue="${build.path}/logs/" promptChar=" ?">Log directory</input>
-        <input propertyname="build.public_dir" defaultValue="${build.path}/htdocs" promptChar=" ?">Public directory</input>
-        <input propertyname="zend.source" defaultValue="${zend.source}" validargs="${zend.versions}" promptChar=" ?">Zend source</input>
-        <input propertyname="build.library_namespace" defaultValue="${project.name.ucfirst}" promptChar=" ?">Library namespace (should be in config/project.properties)</input>
-        -->
-        
-        
         <phingcall target="build:save_config" />
     </target>
     
-    
-    <!-- ======================================================================== -->
-    <!-- The before / after targets that phingy/build.xml expects =============== -->
-    <!-- ======================================================================== -->
-    
+
     <!--
         Sets up the directories and permissions required by TYPO3.
         Symlinks the sphinx configuration.
         Symlinks TYPO3 into this environment. 
         Caches the routes.
     -->
-    <target name="platform:build:before" hidden="true" description="Sets up the directories and permissions required by TYPO3.
-        Symlinks the sphinx configuration.
-        Symlinks TYPO3 into this environment. 
-        Caches the routes.">
-        <mkdir dir="${build.log_dir}" />
+    <target name="typo3:build:before" hidden="true" depends="typo3:need_configuration">
         <mkdir dir="${build.public_dir}/typo3temp" />
         <mkdir dir="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" />
         <mkdir dir="${build.public_dir}/uploads" />
-        <mkdir dir="${db.data_path}" />
-        <mkdir dir="${build.path}/data/sphinx/xmlpipe" />
         <mkdir dir="${build.library_dir}/cache" />
         
-        <chmod file="${build.log_dir}" mode="0777" />
         <chmod file="${build.public_dir}/uploads" mode="0777" />
         <chmod file="${build.public_dir}/typo3temp" mode="0777" />
         <chmod file="${build.public_dir}/typo3temp/Cache" mode="0777" />
@@ -196,65 +101,94 @@
         <chmod file="${build.public_dir}/typo3conf/ext" mode="0777" />
         <chmod file="${build.library_dir}/cache" mode="0777" />
         
-        <!-- 
-        Deprecated options. 
-        Let here so you don't add it if that's what you're thinking.
-        <symlink target="${build.path}/config/sphinx.conf" link="${share.path}/sphinx/${build.name}.include" />
-        -->
-        
         <phingcall target="typo3:symlink" />
-        <phingcall target="typo3:routes:cache" />
     </target>
     
-    <!-- Symlink Sphinx -->
-    <target name="sphinx:symlink" depends="needConfiguration" description="Setup the Sphinx symlink">
-<!-- NO NO NO -->
-        <symlink target="${build.path}/config/sphinx.conf" link="${share.path}/sphinx/${build.name}.include" />
-    </target>
-    
-    <!-- Index Sphinx indexes -->
-    <target name="sphinx:index" depends="needConfiguration" description="Index all Sphinx indexes">
-        <exec command="sudo indexer --rotate ${build.name}_index ${build.name}_spiriant_products_index ${build.name}_spiriant_site_index" dir="${share.path}/sphinx" escape="false" passthru="true" />
-    </target>
-    
+
     <!--
-        After build. Nothing here yet.
+        After build. Caches routes.
     -->
-    <target name="platform:build:after" hidden="true">
-      <echo msg="Running platform:build:after" />
-      <!-- Nothing to do -->
+    <target name="typo3:build:after" hidden="true">
+        <if>
+            <equals arg1="${build.environment}" arg2="development" />
+            <then>
+                <echo msg="Development mode, updating database" />
+                <phingcall target="db:update" />
+            </then>
+            <else>
+                <echo msg="Production mode, not updating database" />
+            </else>
+        </if>
+        
+        <phingcall target="typo3:cache:routes" />
+    </target>
+
+
+    <!--
+        Housekeeping. Nothing here yet.
+    -->
+    <target name="typo3:build:housekeeping" hidden="true">
+        <echo message="Not used" />
     </target>
     
-    <!-- ======================================================================== -->
-    <!-- TYPO3 targets. Used by the other targets =============================== -->
-    <!-- ======================================================================== -->
-    
+
     <!-- 
         Generates the requried typo3 symlinks
     -->
-    <target name="typo3:symlink" depends="needConfiguration" description="Generates the required typo3 symlinks">
+    <target name="typo3:symlink" depends="typo3:need_configuration" description="Generates the required typo3 symlinks" hidden="true">
         <delete file="${build.public_dir}/${typo3.index_file}" />
         <delete file="${build.public_dir}/t3lib" />
         <delete file="${build.public_dir}/typo3" />
         <delete file="${build.public_dir}/typo3src" />
 
-        <symlink target="${share.path}/typo3/typo3_src-${typo3.source}" link="${build.public_dir}/typo3src" />
+        <symlink target="${share.path}/typo3_src-${typo3.source}" link="${build.public_dir}/typo3src" />
         <symlink target="${build.public_dir}/typo3src/index.php" link="${build.public_dir}/${typo3.index_file}" />
         <symlink target="${build.public_dir}/typo3src/t3lib" link="${build.public_dir}/t3lib" />
         <symlink target="${build.public_dir}/typo3src/typo3" link="${build.public_dir}/typo3" />
     </target>
 
+
     <!-- 
         Creates the ENABLE_INSTALL_TOOL file
     -->
-    <target name="typo3:install_tool" depends="needConfiguration" description="Creates the ENABLE_INSTALL_TOOL file">
+    <target name="typo3:install_tool:enable" depends="typo3:need_configuration" description="Creates the ENABLE_INSTALL_TOOL file">
         <touch file="${build.public_dir}/typo3conf/ENABLE_INSTALL_TOOL" />
     </target>
+
+
+    <!-- 
+        Removes the ENABLE_INSTALL_TOOL file
+    -->
+    <target name="typo3:install_tool:disable" depends="typo3:need_configuration" description="Removes the ENABLE_INSTALL_TOOL file">
+        <delete file="${build.public_dir}/typo3conf/ENABLE_INSTALL_TOOL" />
+    </target>
     
+
     <!-- 
         Cache MCA routes so zend works inside TYPO3.
     -->
-    <target name="typo3:routes:cache" depends="needConfiguration" description="Cache MCA routes so zend works inside TYPO3.">
+    <target name="typo3:cache:routes" depends="typo3:need_configuration" description="Cache MCA routes so zend works inside TYPO3.">
         <exec command="php htdocs/typo3conf/ext/zend_fe/cli/cacheRoutes.php" escape="false" />
     </target>
+
+
+    <!--
+        Clear all Typo3 caches
+    -->
+    <target name="typo3:cache:clear_all" depends="typo3:need_configuration" description="Clear cached YAML config (Is this used?)">
+        <exec command="sudo rm htdocs/typo3conf/temp_CACHED*" escape="false" />
+        <exec command="sudo rm htdocs/typo3temp/*" escape="false" />
+    </target>
+
+
+    <!--
+        Clear cached config
+    -->
+    <target name="typo3:cache:clear_config" depends="typo3:need_configuration" description="Clear cached YAML config (Is this used?)">
+        <exec command="sudo rm htdocs/typo3temp/config_cache*" escape="false" />
+    </target>
+
+
+
+
 </project>
