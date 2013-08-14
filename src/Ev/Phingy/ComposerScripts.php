@@ -24,31 +24,33 @@ class ComposerScripts
      */
     public static function postPackageInstall(Event $event)
     {
-        // Create core build file if it doesn't exist
-        if (!file_exists('build.xml')) {
-            $event->getIO()->write('build.xml does not exist, creating template');
+        if ($event->getOperation()->getPackage()->getName() === '3ev/phingy') {
+            // Create core build file if it doesn't exist
+            if (!file_exists('build.xml')) {
+                $event->getIO()->write('build.xml does not exist, creating template');
 
-            symlink('vendor/3ev/phingy/scripts/build.xml', 'build.xml');
-        } else {
-            $event->getIO()->write('build.xml exists, template not needed');
-        }
-
-        // Create project build file if it doesn't exist
-        if (!file_exists('config/project.xml')) {
-            $event->getIO()->write('config/project.xml does not exist, creating template');
-            try {
-                $temps   = implode(',', self::$templates);
-                $default = self::$templates[0];
-
-                $template = $event->getIO()->ask(
-                    "Which template would you like to use ({$temps}) [{$default}] ? ", $default);
-            } catch (Exception $e) {
-                $template = $default;
+                symlink('vendor/3ev/phingy/scripts/build.xml', 'build.xml');
+            } else {
+                $event->getIO()->write('build.xml exists, template not needed');
             }
 
-            copy("vendor/3ev/phingy/scripts/templates/{$template}.xml", 'config/project.xml');
-        } else {
-            $event->getIO()->write('config/project.xml exists, template not needed');
+            // Create project build file if it doesn't exist
+            if (!file_exists('config/project.xml')) {
+                $event->getIO()->write('config/project.xml does not exist, creating template');
+                try {
+                    $temps   = implode(',', self::$templates);
+                    $default = self::$templates[0];
+
+                    $template = $event->getIO()->ask(
+                        "Which template would you like to use ({$temps}) [{$default}] ? ", $default);
+                } catch (Exception $e) {
+                    $template = $default;
+                }
+
+                copy("vendor/3ev/phingy/scripts/templates/{$template}.xml", 'config/project.xml');
+            } else {
+                $event->getIO()->write('config/project.xml exists, template not needed');
+            }
         }
     }
 }
