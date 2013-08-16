@@ -165,27 +165,38 @@
     
 
     <!-- 
-        Cache MCA routes so zend works inside TYPO3.
+        Cache MCA routes so Zend works inside TYPO3.
     -->
-    <target name="typo3:cache:routes" depends="typo3:need_configuration" description="Cache MCA routes so zend works inside TYPO3.">
-        <exec command="php htdocs/typo3conf/ext/zend_fe/cli/cacheRoutes.php" escape="false" />
+    <target name="typo3:cache:routes" depends="typo3:need_configuration" description="Cache MCA routes">
+        <exec command="htdocs/typo3/cli_dispatch.phpsh tx_zendfe_cacheroutes" escape="false" passthru="true" />
     </target>
 
 
     <!--
         Clear all Typo3 caches
     -->
-    <target name="typo3:cache:clear_all" depends="typo3:need_configuration" description="Clear cached YAML config (Is this used?)">
-        <exec command="sudo rm htdocs/typo3conf/temp_CACHED*" escape="false" />
+    <target name="typo3:cache:clear_all" depends="typo3:need_configuration" description="Completely clear TYPO3 temp and routing caches">
         <exec command="sudo rm htdocs/typo3temp/*" escape="false" />
+        <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
     </target>
 
 
     <!--
         Clear cached config
     -->
-    <target name="typo3:cache:clear_config" depends="typo3:need_configuration" description="Clear cached YAML config (Is this used?)">
+    <target name="typo3:cache:clear_config" depends="typo3:need_configuration" description="Clear cached TYPO3 config">
+        <exec command="sudo rm htdocs/typo3conf/Cache/Code/cache_core/ext_*" escape="false" />
+        <exec command="sudo rm htdocs/typo3conf/Cache/Code/cache_core/tca_*" escape="false" />
         <exec command="sudo rm htdocs/typo3temp/config_cache*" escape="false" />
+    </target>
+
+
+    <!--
+        Clear cached routing
+    -->
+    <target name="typo3:cache:clear_routes" depends="typo3:need_configuration" description="Clear cached TYPO3 routing">
+        <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
+        <exec command="sudo rm htdocs/typo3temp/routes.ini" escape="false" />
     </target>
 
 
