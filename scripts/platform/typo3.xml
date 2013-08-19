@@ -108,9 +108,10 @@
             <equals arg1="${build.environment}" arg2="development" />
             <then>
                 <if>
-                    <available file="${build.public_dir}/htdocs/typo3conf/FIRST_INSTALL" />
+                    <available file="${build.public_dir}/typo3conf/FIRST_INSTALL" />
                     <then>
                         <echo msg="Development mode and first install, creating database" />
+                        <phingcall target="db:create" />
                     </then>
                     <else>
                         <echo msg="Development mode, updating database" />
@@ -171,7 +172,15 @@
         Cache MCA routes so Zend works inside TYPO3.
     -->
     <target name="typo3:cache:routes" depends="typo3:need_configuration" description="Cache MCA routes">
-        <exec command="htdocs/typo3/cli_dispatch.phpsh tx_zendfe_cacheroutes" escape="false" passthru="true" />
+        <if>
+            <available file="${build.public_dir}/typo3conf/ext/zend_fe" type="dir" />
+            <then>
+                <exec command="htdocs/typo3/cli_dispatch.phpsh tx_zendfe_cacheroutes" escape="false" passthru="true" />
+            </then>
+            <else>
+                <echo msg="Zend FE not installed, not caching routes" />
+            </else>
+        </if>
     </target>
 
 
