@@ -12,19 +12,10 @@
 
 
     <!--
-        Config hook. Not used.
-    -->
-    <target name="sphinx:build:config" description="Hook" hidden="true">
-        <echo message="Not used" />
-    </target>
-
-
-    <!--
         Build before hook. Symlinks Sphinx.
     -->
     <target name="sphinx:build:before" description="Hook" hidden="true">
-       <mkdir dir="${build.path}/data/sphinx/xmlpipe" />
-       <chmod file="${build.path}/data/sphinx/xmlpipe" mode="0777" />
+       <chmod file="${build.path}/data/sphinx/xmlpipe" mode="0775" />
        <phingcall target="sphinx:symlink" />
     </target>
 
