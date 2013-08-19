@@ -151,7 +151,6 @@
         The main build task
     -->
     <target name="build" description="Build the project">
-        <mkdir dir="${build.log_dir}" />
         <chmod file="${build.log_dir}" mode="0777" />
         <touch file="${build.log_dir}/apache_access.log" />
         <chmod file="${build.log_dir}/apache_access.log" mode="0777" />

@@ -82,24 +82,19 @@
 
     <!--
         Sets up the directories and permissions required by TYPO3.
-        Symlinks the sphinx configuration.
         Symlinks TYPO3 into this environment. 
-        Caches the routes.
     -->
     <target name="typo3:build:before" hidden="true" depends="typo3:need_configuration">
         <mkdir dir="${build.public_dir}/typo3temp" />
         <mkdir dir="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" />
-        <mkdir dir="${build.public_dir}/uploads" />
-        <mkdir dir="${build.library_dir}/cache" />
-        
-        <chmod file="${build.public_dir}/uploads" mode="0777" />
+                
+        <chmod file="${build.public_dir}/uploads" mode="0775" />
         <chmod file="${build.public_dir}/typo3temp" mode="0777" />
         <chmod file="${build.public_dir}/typo3temp/Cache" mode="0777" />
         <chmod file="${build.public_dir}/typo3temp/Cache/Code" mode="0777" />
         <chmod file="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" mode="0777" />
         <chmod file="${build.public_dir}/typo3conf" mode="0777" />
         <chmod file="${build.public_dir}/typo3conf/ext" mode="0777" />
-        <chmod file="${build.library_dir}/cache" mode="0777" />
         
         <phingcall target="typo3:symlink" />
     </target>
