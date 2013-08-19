@@ -80,8 +80,6 @@
         <input propertyname="db.root.pass" defaultValue="${db.root.pass}" promptChar=" ?">MySQL root Password</input>
 
         <phingcall target="build:save_config" />
-
-        <mkdir dir="${db.data_path}" />
     </target>
 
 
