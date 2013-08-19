@@ -101,14 +101,22 @@
     
 
     <!--
-        After build. Caches routes.
+        After build. Creates database and caches routes.
     -->
     <target name="typo3:build:after" hidden="true">
         <if>
             <equals arg1="${build.environment}" arg2="development" />
             <then>
-                <echo msg="Development mode, updating database" />
-                <phingcall target="db:update" />
+                <if>
+                    <available file="${build.public_dir}/htdocs/typo3conf/FIRST_INSTALL" />
+                    <then>
+                        <echo msg="Development mode and first install, creating database" />
+                    </then>
+                    <else>
+                        <echo msg="Development mode, updating database" />
+                        <phingcall target="db:update" />
+                    </else>
+                </if>
             </then>
             <else>
                 <echo msg="Production mode, not updating database" />
