@@ -125,6 +125,17 @@
         </if>
         
         <phingcall target="typo3:cache:routes" />
+
+        <if>
+            <equals arg1="${build.environment}" arg2="production" />
+            <then>
+                <echo msg="Production mode, compiling assets" />
+                <phingcall target="typo3:compile:all" />
+            </then>
+            <else>
+                <echo msg="Development mode, not compiling assets" />
+            </else>
+        </if>
     </target>
 
 
@@ -209,6 +220,37 @@
     <target name="typo3:cache:clear_routes" depends="typo3:need_configuration" description="Clear cached TYPO3 routing">
         <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
         <exec command="sudo rm htdocs/typo3temp/routes.ini" escape="false" />
+    </target>
+
+
+    <!--
+        Compile all site static assets.
+    -->
+    <target name="typo3:compile:all" depends="typo3:need_configuration" description="Compile all site static assets">
+        <phingcall target="typo3:compile:javascript" />
+        <phingcall target="typo3:compile:css" />
+    </target>
+
+
+    <!--
+        Compile site JavaScript
+    -->
+    <target name="typo3:compile:javascript" depends="typo3:need_configuration" description="Compile Require.js files">
+        <echo msg="Compiling JavaScript for the '${site_assets_ext}' extension..." />
+        <exec command="node htdocs/typo3conf/ext/tev_boilerplate/Resources/Public/js/r.js -o htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/js/build.js" escape="false" passthru="true" />
+        <echo msg="...complete" />
+    </target>
+
+
+    <!--
+        Compile site CSS
+
+        Not yet implemented
+    -->
+    <target name="typo3:compile:css" depends="typo3:need_configuration" description="Compile SASS files (not yet implemented)">
+        <echo msg="Compiling SASS for the '${site_assets_ext}' extension..." />
+        <echo msg="Not yet implemented" />
+        <echo msg="...complete" />
     </target>
 
 
