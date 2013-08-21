@@ -270,7 +270,7 @@
     -->
     <target name="typo3:sass:watch" depends="typo3:need_configuration" description="Watch SASS files in development">
         <phingcall target="typo3:sass:create_output_dir" />
-        <exec command="sass --watch htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/sass/style.scss:htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css/style.css" escape="false" passthru="true" />
+        <exec command="sass -gl --watch htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/sass/style.scss:htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css/style.css --style expanded" escape="false" passthru="true" />
     </target>
 
 
