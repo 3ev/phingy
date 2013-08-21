@@ -227,8 +227,16 @@
         Compile all site static assets.
     -->
     <target name="typo3:compile:all" depends="typo3:need_configuration" description="Compile all site static assets">
-        <phingcall target="typo3:compile:javascript" />
-        <phingcall target="typo3:compile:css" />
+        <if>
+            <isset property="site_assets_ext" />
+            <then>
+                <phingcall target="typo3:compile:javascript" />
+                <phingcall target="typo3:compile:css" />
+            </then>
+            <else>
+                <echo msg="'site_assets_ext' is not set, assets not compiled" level="warning" />
+            </else>
+        </if>
     </target>
 
 
@@ -244,13 +252,35 @@
 
     <!--
         Compile site CSS
-
-        Not yet implemented
     -->
-    <target name="typo3:compile:css" depends="typo3:need_configuration" description="Compile SASS files (not yet implemented)">
+    <target name="typo3:compile:css" depends="typo3:need_configuration" description="Compile SASS files">
         <echo msg="Compiling SASS for the '${site_assets_ext}' extension..." />
-        <echo msg="Not yet implemented" />
+
+        <phingcall target="typo3:sass:create_output_dir" />
+
+        <!-- Compile -->
+        <exec command="sass htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/sass/style.scss htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css/style.css --style compressed" escape="false" passthru="true" />
+
         <echo msg="...complete" />
+    </target>
+
+
+    <!--
+        Watch site SASS files in development
+    -->
+    <target name="typo3:sass:watch" depends="typo3:need_configuration" description="Watch SASS files in development">
+        <phingcall target="typo3:sass:create_output_dir" />
+        <exec command="sass --watch htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/sass/style.scss:htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css/style.css" escape="false" passthru="true" />
+    </target>
+
+
+    <!--
+        Create compiled SASS directory
+    -->
+    <target name="typo3:sass:create_output_dir" depends="typo3:need_configuration" hidden="true" description="Create compiled SASS directory">
+        <mkdir dir="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled" />
+        <mkdir dir="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css" />
+        <chmod file="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css" mode="0775" />
     </target>
 
 
