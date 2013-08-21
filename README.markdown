@@ -1,12 +1,12 @@
 # Phingy
 
-Current version: `0.0.7`
+Current version: `0.0.8`
 
 Phingy is a small collection of build scripts which you can mix together differently depending on your project. To use these scripts, you include the required ones in your build script starting with your own project.xml. 
 
 Using Phingy will mean that your project will be able to be built in its entirety with a simple
 
-```
+```sh
 $ phing build
 ```
 
