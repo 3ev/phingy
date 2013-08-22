@@ -156,8 +156,8 @@
         <chmod file="${build.log_dir}/apache_access.log" mode="0777" />
         <touch file="${build.log_dir}/apache_error.log" />
         <chmod file="${build.log_dir}/apache_error.log" mode="0777" />
-        <touch file="${build.log_dir}/php_errors" /> 
-        <chmod file="${build.log_dir}/php_errors" mode="0777" />
+        <touch file="${build.log_dir}/php_errors.log" /> 
+        <chmod file="${build.log_dir}/php_errors.log" mode="0777" />
 
         <phingcall target="project:build:before" />
         <phingcall target="build:skel" />
