@@ -24,6 +24,8 @@
     <property name="db.host" value="localhost" />
     <property name="db.root.user" value="root" />
     <property name="db.root.pass" value="" />
+    <property name="amazon.key" value="${s3.key}" />
+    <property name="amazon.secret" value="${s3.secret}" />
 
     <!-- Load the PDOSQLEXEC task -->
     <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask" />
@@ -53,6 +55,8 @@
                 <isset property="db.data_path" />
                 <isset property="s3.key" />
                 <isset property="s3.secret" />
+                <isset property="amazon.key" />
+                <isset property="amazon.secret" />
             </and>
             <then>
                 <property name="db.is_configured" value="true" />
@@ -141,15 +145,15 @@
 
     <!-- Dump the data -->
     <target name="db:data:dump" depends="db:need_configuration" description="Dump DB structure into data/db/data.sql">
-        <echo msg="MySQL dump tables '${db.tables.data}' into ${db.data_path}/data.sql" />
-        <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${db.user} -p${db.user} -h${db.host} ${db.name} ${db.tables.data}  > ${db.data_path}/data.sql" />
+        <echo msg="MySQL dump data into ${db.data_path}/data.sql" />
+        <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/data.sql" />
     </target>
 
 
     <!-- Dump the structure -->
     <target name="db:structure:dump" depends="db:need_configuration" description="Dump DB structure into data/db/create.sql">
-        <echo msg="MySQL dump tables '${db.tables.structure}' into ${db.data_path}/data.sql" />
-        <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.user} -h${db.host} ${db.name} ${db.tables.structure} > ${db.data_path}/create.sql" />
+        <echo msg="MySQL dump structure into ${db.data_path}/data.sql" />
+        <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/create.sql" />
     </target>
 
 
