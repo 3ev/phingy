@@ -25,8 +25,6 @@
 
     <property name="build.library_dir" value="${build.path}/library" />
     <property name="typo3.index_file" value="t3index.php" />
-    <property name="amazon.key" value="${s3.key}" />
-    <property name="amazon.secret" value="${s3.secret}" />
 
     <!-- Set the include path -->
     <includepath classpath="./library" />
