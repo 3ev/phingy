@@ -27,7 +27,7 @@
     <!--
         Name of the extension that contains the site assets to compile
     -->
-    <!-- <property name="site_assets_ext" value="tev_site" /> -->
+    <property name="site_assets_ext" value="tev_site" />
 
 
 
