@@ -131,7 +131,8 @@
                 <phingcall target="typo3:compile:all" />
             </then>
             <else>
-                <echo msg="Development mode, not compiling assets" />
+                <echo msg="Development mode, compiling initial SASS files" />
+                <phingcall target="typo3:compile:css" />
             </else>
         </if>
     </target>
