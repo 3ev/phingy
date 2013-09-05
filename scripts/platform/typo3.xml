@@ -72,7 +72,7 @@
             outputproperty="typo3.versions"
         />
 
-        <input propertyname="typo3.source" defaultValue="6.1.3" validargs="${typo3.versions}" promptChar=" ?">Typo3 source</input>
+        <input propertyname="typo3.source" defaultValue="6.1.4" validargs="${typo3.versions}" promptChar=" ?">Typo3 source</input>
 
         <phingcall target="build:save_config" />
     </target>
