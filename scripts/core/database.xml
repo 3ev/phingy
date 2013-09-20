@@ -10,16 +10,16 @@
 
 
 
-    
+
     <!-- Override memory limit -->
     <php expression="ini_set('memory_limit', '-1');" level="verbose" />
-    
+
     <!-- Set timestamp -->
     <tstamp/>
-    
+
     <!-- used for permanent backups -->
     <php expression="date('d-F-Y')" returnProperty="time.today" level="verbose" />
-    
+
     <property name="db.data_path" value="${build.path}/data/db" />
     <property name="db.host" value="localhost" />
     <property name="db.root.user" value="root" />
@@ -32,12 +32,12 @@
 
 
 
-    
+
     <!-- ==================================== -->
     <!--                Tasks                 -->
     <!-- ==================================== -->
 
-    
+
 
 
     <!--
@@ -87,7 +87,7 @@
     </target>
 
 
-    <!-- 
+    <!--
         The create, drop, recreate and empty targets
     -->
     <target name="db:create" depends="db:need_configuration, db:drop" description="Create the database including privileges">
@@ -114,7 +114,7 @@
     <!-- Alias: db:drop, db:create -->
     <target name="db:recreate" description="Drops and recreates the database" depends="db:drop, db:create">
     </target>
-        
+
 
     <!-- Empty the database -->
     <target name="db:data:empty" description="Truncate all tables">
@@ -126,7 +126,7 @@
         <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/truncate.sql" />
         <delete file="${db.data_path}/truncate.sql" />
     </target>
-    
+
 
     <!--
         The loading, dumping, updating methods for structure and data
@@ -174,7 +174,7 @@
             object="data.sql"
             target="${db.data_path}/data.sql" />
     </target>
-    
+
 
     <!-- Uploads the structure + data file to S3, keeps forever -->
     <target name="db:commit:forever" depends="db:need_configuration" description="Upload structure + data to S3, forever">
@@ -210,48 +210,21 @@
             object="data.sql"
             source="${db.data_path}/data.sql" />
     </target>
-    
 
-    <!-- 
-        The zip targets
-    -->
-
-
-    <!-- Update DB structure from S3 -->
-    <target name="db:tar:upload" depends="db:need_configuration, db:structure:dump, db:data:dump" description="Create and upload a tar of the project's data to S3">
-        <exec command="tar czf ${db.data_path}/${project.name}.tar.gz data/db/create.sql data/db/data.sql" />
-        
-        <s3put
-            createBuckets="true"
-            bucket="database.${project.name}.3ev.me"
-            object="${project.name}.tar.gz"
-            source="${db.data_path}/${project.name}.tar.gz" />
-    </target>
-    
-
-    <!-- Update DB structure from S3 -->
-    <target name="db:tar:download" depends="db:need_configuration" description="Download a tar of the project's data from S3 and untar into data/db/">
-        <s3get
-            bucket="database.${project.name}.3ev.me"
-            object="${project.name}.tar.gz"
-            target="${db.data_path}/${project.name}.tar.gz" />
-        
-        <exec command="tar xzf ${db.data_path}/${project.name}.tar.gz" />
-    </target>
-    
 
     <!--
         Meta tasks
     -->
-    
+
 
     <!--
         Updates structure + data files
         Call db:reload
      -->
     <target name="db:update" depends="db:structure:update, db:data:update, db:reload" description="Download structure, data from S3 and load">
+        <!-- see the 'depends' attribute -->
     </target>
-    
+
 
     <!--
         Drops + Creates the database
