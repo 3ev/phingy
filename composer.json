@@ -1,5 +1,14 @@
 {
     "name": "3ev/phingy",
+    "description": "A useful collection of build scripts for managing PHP sites",
+    "homepage": "http://github.com/3ev/phingy",
+    "authors": [
+        {
+            "name": "3ev",
+            "email": "info@3ev.com",
+            "homepage": "http://www.3ev.com"
+        }
+    ],
     "autoload": {
         "psr-0": {
             "Ev\\Phingy": "src/"
