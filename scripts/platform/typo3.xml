@@ -24,7 +24,6 @@
 
 
     <property name="build.library_dir" value="${build.path}/library" />
-    <property name="typo3.index_file" value="t3index.php" />
 
     <!-- Set the include path -->
     <includepath classpath="./library" />
@@ -40,49 +39,10 @@
 
 
     <!--
-        Required Typo3 configuration
-    -->
-    <target name="typo3:need_configuration" hidden="true">
-        <if>
-            <and>
-                <isset property="typo3.source" />
-                <isset property="typo3.index_file" />
-                <isset property="build.library_dir" />
-            </and>
-            <then>
-                <property name="typo3.is_configured" value="true" />
-            </then>
-            <else>
-                <property name="typo3.is_configured" value="false" />
-                <phingcall target="typo3:build:config" />
-            </else>
-        </if>
-    </target>
-
-
-    <!--
-        Setup Typo3 config
-    -->
-    <target name="typo3:build:config" description="Configure Typo3 Build" depends="db:build:config" hidden="true">
-        <echo msg="Configuring Typo3 ================================" />
-
-        <exec
-            command="find ${share.path}/ -name 'typo3_src*' ! -name '*.gz' | cut -f 2- -d - | awk '{print $1&#34;,&#34; }' | tr -d '\n' | rev | cut -b 2- | rev"
-            escape="false"
-            outputproperty="typo3.versions"
-        />
-
-        <input propertyname="typo3.source" defaultValue="6.1.3" validargs="${typo3.versions}" promptChar=" ?">Typo3 source</input>
-
-        <phingcall target="build:save_config" />
-    </target>
-
-
-    <!--
         Sets up the directories and permissions required by TYPO3.
         Symlinks TYPO3 into this environment.
     -->
-    <target name="typo3:build:before" hidden="true" depends="typo3:need_configuration">
+    <target name="typo3:build:before" hidden="true">
         <mkdir dir="${build.public_dir}/typo3temp" />
         <mkdir dir="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" />
 
@@ -147,7 +107,7 @@
     <!--
         Creates the ENABLE_INSTALL_TOOL file
     -->
-    <target name="typo3:install_tool:enable" depends="typo3:need_configuration" description="Creates the ENABLE_INSTALL_TOOL file">
+    <target name="typo3:install_tool:enable" description="Creates the ENABLE_INSTALL_TOOL file">
         <touch file="${build.public_dir}/typo3conf/ENABLE_INSTALL_TOOL" />
     </target>
 
@@ -155,7 +115,7 @@
     <!--
         Removes the ENABLE_INSTALL_TOOL file
     -->
-    <target name="typo3:install_tool:disable" depends="typo3:need_configuration" description="Removes the ENABLE_INSTALL_TOOL file">
+    <target name="typo3:install_tool:disable" description="Removes the ENABLE_INSTALL_TOOL file">
         <delete file="${build.public_dir}/typo3conf/ENABLE_INSTALL_TOOL" />
     </target>
 
@@ -163,7 +123,7 @@
     <!--
         Cache MCA routes so Zend works inside TYPO3.
     -->
-    <target name="typo3:cache:routes" depends="typo3:need_configuration" description="Cache MCA routes">
+    <target name="typo3:cache:routes" description="Cache MCA routes">
         <if>
             <available file="${build.public_dir}/typo3conf/ext/zend_fe" type="dir" />
             <then>
@@ -179,7 +139,7 @@
     <!--
         Clear all Typo3 caches
     -->
-    <target name="typo3:cache:clear_all" depends="typo3:need_configuration" description="Completely clear TYPO3 temp and routing caches">
+    <target name="typo3:cache:clear_all" description="Completely clear TYPO3 temp and routing caches">
         <exec command="sudo rm htdocs/typo3temp/*" escape="false" />
         <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
     </target>
@@ -188,7 +148,7 @@
     <!--
         Clear cached config
     -->
-    <target name="typo3:cache:clear_config" depends="typo3:need_configuration" description="Clear cached TYPO3 config">
+    <target name="typo3:cache:clear_config" description="Clear cached TYPO3 config">
         <exec command="sudo rm htdocs/typo3conf/Cache/Code/cache_core/ext_*" escape="false" />
         <exec command="sudo rm htdocs/typo3conf/Cache/Code/cache_core/tca_*" escape="false" />
         <exec command="sudo rm htdocs/typo3temp/config_cache*" escape="false" />
@@ -198,7 +158,7 @@
     <!--
         Clear cached routing
     -->
-    <target name="typo3:cache:clear_routes" depends="typo3:need_configuration" description="Clear cached TYPO3 routing">
+    <target name="typo3:cache:clear_routes" description="Clear cached TYPO3 routing">
         <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
         <exec command="sudo rm htdocs/typo3temp/routes.ini" escape="false" />
     </target>
@@ -207,7 +167,7 @@
     <!--
         Compile all site static assets.
     -->
-    <target name="typo3:compile:all" depends="typo3:need_configuration" description="Compile all site static assets">
+    <target name="typo3:compile:all" description="Compile all site static assets">
         <if>
             <isset property="site_assets_ext" />
             <then>
@@ -224,7 +184,7 @@
     <!--
         Compile site JavaScript
     -->
-    <target name="typo3:compile:javascript" depends="typo3:need_configuration" description="Compile Require.js files">
+    <target name="typo3:compile:javascript" description="Compile Require.js files">
         <echo msg="Compiling JavaScript for the '${site_assets_ext}' extension..." />
         <exec command="node htdocs/typo3conf/ext/tev_boilerplate/Resources/Public/js/r.js -o htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/js/build.js" escape="false" passthru="true" />
         <echo msg="...complete" />
@@ -234,7 +194,7 @@
     <!--
         Compile site CSS
     -->
-    <target name="typo3:compile:css" depends="typo3:need_configuration" description="Compile SASS files">
+    <target name="typo3:compile:css" description="Compile SASS files">
         <echo msg="Compiling SASS for the '${site_assets_ext}' extension..." />
 
         <phingcall target="typo3:sass:create_output_dir" />
@@ -249,7 +209,7 @@
     <!--
         Watch site SASS files in development
     -->
-    <target name="typo3:sass:watch" depends="typo3:need_configuration" description="Watch SASS files in development">
+    <target name="typo3:sass:watch" description="Watch SASS files in development">
         <phingcall target="typo3:sass:create_output_dir" />
         <exec command="sass -gl --watch htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/sass/style.scss:htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css/style.css --style expanded" escape="false" passthru="true" />
     </target>
@@ -258,7 +218,7 @@
     <!--
         Create compiled SASS directory
     -->
-    <target name="typo3:sass:create_output_dir" depends="typo3:need_configuration" hidden="true" description="Create compiled SASS directory">
+    <target name="typo3:sass:create_output_dir" hidden="true" description="Create compiled SASS directory">
         <mkdir dir="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled" />
         <mkdir dir="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css" />
         <chmod file="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css" mode="0775" />
