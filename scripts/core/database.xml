@@ -152,63 +152,109 @@
 
     <!-- Dump the structure -->
     <target name="db:structure:dump" depends="db:need_configuration" description="Dump DB structure into data/db/create.sql">
-        <echo msg="MySQL dump structure into ${db.data_path}/data.sql" />
+        <echo msg="MySQL dump structure into ${db.data_path}/create.sql" />
         <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/create.sql" />
     </target>
 
 
     <!-- Update DB structure from S3 -->
     <target name="db:structure:update" depends="db:need_configuration" description="Download structure file from S3 to data/db/create.sql">
-        <echo msg="Grabbing data from: database.${project.name}.3ev.me" />
+        <echo msg="Pulling structure from: database.${project.name}.3ev.me..." />
         <s3get
             bucket="database.${project.name}.3ev.me"
-            object="create.sql"
-            target="${db.data_path}/create.sql" />
+            object="create.sql.gz"
+            target="${db.data_path}/create.sql.gz" />
+        <echo msg="...done" />
+        <echo msg="Unzipping structure..." />
+        <exec command="gunzip ${db.data_path}/create.sql.gz" />
+        <echo msg="...done" />
     </target>
 
 
     <!-- Update DB data from S3 -->
     <target name="db:data:update" depends="db:need_configuration" description="Download data file from S3 to data/db/data.sql">
+        <echo msg="Pulling data from: database.${project.name}.3ev.me..." />
         <s3get
             bucket="database.${project.name}.3ev.me"
-            object="data.sql"
-            target="${db.data_path}/data.sql" />
+            object="data.sql.gz"
+            target="${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
+        <echo msg="Unzipping data..." />
+        <exec command="gunzip ${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
     </target>
 
 
     <!-- Uploads the structure + data file to S3, keeps forever -->
     <target name="db:commit:forever" depends="db:need_configuration" description="Upload structure + data to S3, forever">
-        <s3put
-            createBuckets="true"
-            bucket="database.${project.name}.3ev.me"
-            object="create-${time.today}.sql"
-            source="${db.data_path}/create.sql" />
+        <echo msg="Gzipping structure..." />
+        <exec command="gzip ${db.data_path}/create.sql" />
+        <echo msg="...done" />
 
+        <echo msg="Pushing structure..." />
         <s3put
             createBuckets="true"
             bucket="database.${project.name}.3ev.me"
-            object="data-${time.today}.sql"
-            source="${db.data_path}/data.sql" />
+            object="create-${time.today}.sql.gz"
+            source="${db.data_path}/create.sql" />
+        <echo msg="...done" />
+
+        <echo msg="Gzipping data..." />
+        <exec command="gzip ${db.data_path}/data.sql" />
+        <echo msg="...done" />
+
+        <echo msg="Pushing data..." />
+        <s3put
+            createBuckets="true"
+            bucket="database.${project.name}.3ev.me"
+            object="data-${time.today}.sql.gz"
+            source="${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
+
+        <echo msg="Cleaning up..." />
+        <exec command="rm ${db.data_path}/create.sql.gz" />
+        <exec command="rm ${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
     </target>
 
 
     <!-- Uploads the structure file to S3 -->
     <target name="db:structure:commit" depends="db:need_configuration" description="Upload structure to S3 from data/db/create.sql">
+        <echo msg="Gzipping structure..." />
+        <exec command="gzip ${db.data_path}/create.sql" />
+        <echo msg="...done" />
+
+        <echo msg="Pushing structure..." />
         <s3put
             createBuckets="true"
             bucket="database.${project.name}.3ev.me"
-            object="create.sql"
-            source="${db.data_path}/create.sql" />
+            object="create.sql.gz"
+            source="${db.data_path}/create.sql.gz" />
+        <echo msg="...done" />
+
+        <echo msg="Cleaning up..." />
+        <exec command="rm ${db.data_path}/create.sql.gz" />
+        <echo msg="...done" />
     </target>
 
 
     <!-- Uploads the data file to S3 -->
     <target name="db:data:commit" depends="db:need_configuration" description="Upload data to S3 from data/db/data.sql">
+        <echo msg="Gzipping data..." />
+        <exec command="gzip ${db.data_path}/data.sql" />
+        <echo msg="...done" />
+
+        <echo msg="Pushing data..." />
         <s3put
             createBuckets="true"
             bucket="database.${project.name}.3ev.me"
-            object="data.sql"
-            source="${db.data_path}/data.sql" />
+            object="data.sql.gz"
+            source="${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
+
+        <echo msg="Cleaning up..." />
+        <exec command="rm ${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
     </target>
 
 
@@ -220,9 +266,10 @@
     <!--
         Updates structure + data files
         Call db:reload
-     -->
+    -->
     <target name="db:update" depends="db:structure:update, db:data:update, db:reload" description="Download structure, data from S3 and load">
-        <!-- see the 'depends' attribute -->
+        <exec command="rm ${db.data_path}/create.sql" />
+        <exec command="rm ${db.data_path}/data.sql" />
     </target>
 
 
@@ -231,6 +278,14 @@
         Loads structure + data
     -->
     <target name="db:reload" depends="db:structure:load, db:data:load" description="Recreate DB + load data">
+        <!-- see the 'depends' attribute -->
+    </target>
+
+
+    <!--
+        Dumps data and pushes to S3
+    -->
+    <target name="db:commit" depends="db:structure:dump, db:structure:commit, db:data:dump, db:data:commit" description="Dump, zip and push data to S3">
         <!-- see the 'depends' attribute -->
     </target>
 
