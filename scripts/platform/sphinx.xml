@@ -57,7 +57,7 @@
         Index Sphinx indexes
     -->
     <target name="sphinx:index" description="Index all Sphinx indexes">
-        <exec command="sudo indexer --rotate ${sed -n 's/.*source = \([a-Z]\)/\1/p' ${build.path}/config/sphinx.conf | paste -s -d &quot; &quot;}" dir="${share.path}/sphinx" escape="false" passthru="true" />
+        <exec command="sudo indexer --rotate $(sed -n 's/.*source = \([a-Z]\)/\1/p' ${build.path}/config/sphinx.conf | paste -s -d &quot; &quot;)" dir="${share.path}/sphinx" escape="false" passthru="true" />
     </target>
 
 
