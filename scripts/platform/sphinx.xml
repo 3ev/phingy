@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="" basedir="." default="...">    
-    
+<project name="" basedir="." default="...">
+
 
 
 
@@ -41,23 +41,34 @@
     -->
     <target name="sphinx:symlink" description="Setup the Sphinx symlink" depends="build:need_configuration" hidden="true">
         <if>
-            <equals arg1="${build.environment}" arg2="development" />
+            <available file="${build.path}/config/sphinx.conf" property="sphinx_config_exists" />
             <then>
-                <echo message="Symlinking Sphinx config as in development" />
+                <echo message="Sphinx config found, symlinking..." />
                 <symlink target="${build.path}/config/sphinx.conf" link="${share.path}/sphinx/${build.name}.include" />
+                <echo message="...done." />
             </then>
             <else>
-                <echo message="In production, did not symlink" />
+                <echo message="No Sphinx config found, did not symlink" />
             </else>
         </if>
     </target>
-    
+
 
     <!--
         Index Sphinx indexes
     -->
     <target name="sphinx:index" description="Index all Sphinx indexes">
-        <exec command="sudo indexer --rotate ${sed -n 's/.*source = \([a-Z]\)/\1/p' ${build.path}/config/sphinx.conf | paste -s -d &quot; &quot;}" dir="${share.path}/sphinx" escape="false" passthru="true" />
+        <if>
+            <available file="${build.path}/config/sphinx.conf" property="sphinx_config_exists" />
+            <then>
+                <echo message="Sphinx config found, indexing..." />
+                <exec command="sudo indexer --rotate ${sed -n 's/.*source = \([a-Z]\)/\1/p' ${build.path}/config/sphinx.conf | paste -s -d &quot; &quot;}" dir="${share.path}/sphinx" escape="false" passthru="true" />
+                <echo message="...done." />
+            </then>
+            <else>
+                <echo message="No Sphinx config found, did not index" />
+            </else>
+        </if>
     </target>
 
 
