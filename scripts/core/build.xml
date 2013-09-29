@@ -111,25 +111,33 @@
             </fileset>
         </chmod>
     </target>
-    
+
 
     <!--
-        Symlink site into sites-enabled AND restart Apache. Will only run in development.
-    --> 
+        Symlink site into sites-enabled AND restart Apache.
+    -->
     <target name="build:server" description="Symlink site into sites-enabled AND restart Apache">
         <if>
-            <equals arg1="${build.environment}" arg2="development" />
+            <os family="mac" />
             <then>
-                <echo message="Symlinking site as in development" />
-                <exec command="sudo ln -s ${build.path}/config/httpd.include /etc/apache2/sites-enabled/${build.name}" />
-                <exec command="sudo service apache2 reload" />
+                <echo message="On OSX, symlinking to /etc/apache2/vhosts..." />
+                <exec command="sudo ln -s ${build.path}/config/httpd.include /etc/apache2/vhosts/${build.name}.include" />
+                <echo message="...done." />
+                <echo message="Reloading Apache config..." />
+                <exec command="sudo apachectl reload" />
+                <echo message="...done." />
             </then>
             <else>
-                <echo message="In production, did not symlink" />
+                <echo message="On Linux, symlinking to /etc/apache2/sites-enabled..." />
+                <exec command="sudo ln -s ${build.path}/config/httpd.include /etc/apache2/sites-enabled/${build.name}.include" />
+                <echo message="...done." />
+                <echo message="Reloading Apache config..." />
+                <exec command="sudo service apache2 reload" />
+                <echo message="...done." />
             </else>
         </if>
     </target>
-    
+
 
     <!--
         Housekeeping task
