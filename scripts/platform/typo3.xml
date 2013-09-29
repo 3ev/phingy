@@ -25,9 +25,6 @@
 
     <property name="build.library_dir" value="${build.path}/library" />
 
-    <!-- Set the include path -->
-    <includepath classpath="./library" />
-
 
 
 
