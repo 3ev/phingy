@@ -1,6 +1,6 @@
 # Phingy
 
-Current version: `0.3.0`
+Current version: `0.4.0`
 
 Phingy is a small collection of build scripts which you can mix together differently depending on your project. To use these scripts, you include the required ones in your build script starting with your own project.xml.
 
@@ -122,8 +122,6 @@ You add should any project specific config to `config/project.properties` if pos
 When deploying to production, you should still be able to use `phing build`. Tasks can use the `${build.environment}` variable to decide whether or not they should be run. Some built in taks that make use of this are:
 
 ```
-build:server      The server will only be symlinked and restarted in development
-sphinx:symlink    Sphinx will only be symlinked in development
 typo3:build:after This will update the database, but only in development
 ```
 

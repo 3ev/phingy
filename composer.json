@@ -9,6 +9,15 @@
             "homepage": "http://www.3ev.com"
         }
     ],
+    "require": {
+        "pear-pear/Services_Amazon_S3": "*"
+    },
+    "repositories": [
+        {
+            "type": "pear",
+            "url": "http://pear.php.net"
+        }
+    ],
     "autoload": {
         "psr-0": {
             "Ev\\Phingy": "src/"
