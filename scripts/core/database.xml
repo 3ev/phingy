@@ -30,6 +30,9 @@
     <!-- Load the PDOSQLEXEC task -->
     <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask" />
 
+    <!-- [TODO: Tidy this up] Include Amazon S3 Task -->
+    <includepath classpath="${phingy.path}/vendor/pear-pear.php.net/Services_Amazon_S3" />
+
 
 
 
