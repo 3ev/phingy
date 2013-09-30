@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "pear-pear/Services_Amazon_S3": "*"
+        "pear-pear/Services_Amazon_S3": "0.4.0"
     },
     "repositories": [
         {

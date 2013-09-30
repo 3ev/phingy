@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "c1eb5cf1e03b6cfaa4698d72d80d2116",
+    "hash": "917188a24768487521063f94d2c1d47f",
     "packages": [
         {
             "name": "pear-pear.php.net/Archive_Tar",
@@ -264,7 +264,7 @@
     "aliases": [
 
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": [
 
     ],
