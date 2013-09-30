@@ -1,6 +1,6 @@
 # Phingy
 
-Current version: `0.4.0`
+Current version: `0.4.1`
 
 Phingy is a small collection of build scripts which you can mix together differently depending on your project. To use these scripts, you include the required ones in your build script starting with your own project.xml.
 
@@ -22,6 +22,10 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
         {
             "type": "vcs",
             "url": "https://github.com/3ev/phingy"
+        },
+        {
+            "type": "pear",
+            "url": "http://pear.php.net"
         }
     ],
     "require": {
