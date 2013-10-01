@@ -62,7 +62,7 @@
             <available file="${build.path}/config/sphinx.conf" property="sphinx_config_exists" />
             <then>
                 <echo message="Sphinx config found, indexing..." />
-                <exec command="sudo indexer --rotate $(sed -n 's/.*source = \([a-Z]\)/\1/p' ${build.path}/config/sphinx.conf | paste -s     -d &quot; &quot;)" dir="${share.path}/sphinx" escape="false" passthru="true" />
+                <exec command="sudo indexer --rotate $(sed -n 's/.*source = \([a-zA-Z]\)/\1/p' ${build.path}/config/sphinx.conf | paste -s -d &quot; &quot; -)" dir="${share.path}/sphinx" escape="false" passthru="true" />
                 <echo message="...done." />
             </then>
             <else>
