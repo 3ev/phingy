@@ -60,6 +60,9 @@
     </target>
 
 
+    <target name="project:typo3:cache:clear_all" hidden="true">
+    </target>
+
 
 
 </project>

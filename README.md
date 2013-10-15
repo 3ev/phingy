@@ -85,12 +85,13 @@ Not yet implemented.
 
 When you run `composer install`, you will be prompted to pick a template to use for you project. Currently, only 'default' and 'typo3' are available. Selecting a template will create a file called `project.xml` in your projects' `config/` directory.
 
-The `project.xml` file includes 3 hooks you can add to for project-specific tasks. These are:
+The `project.xml` file includes a number of hooks you can add to for project-specific tasks. Currently, These are:
 
 ```
-project:build:before       Run some tasks before `build`
-project:build:after        Run some tasks after `build`
-project:build:housekeeping Cleanup any uneeded files or data
+project:build:before          Run some tasks before `build`
+project:build:after           Run some tasks after `build`
+project:build:housekeeping    Cleanup any uneeded files or data
+project:typo3:cache:clear_all Do some extra cache clearing after TYPO3 caches are cleared
 ```
 
 Each platform includes each of these hooks as well, of the form `[platform]:build:before` etc. If you'd like to make use of a platform, simply include it with:

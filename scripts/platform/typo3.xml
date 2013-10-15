@@ -139,6 +139,7 @@
     <target name="typo3:cache:clear_all" description="Completely clear TYPO3 temp and routing caches">
         <exec command="sudo rm htdocs/typo3temp/*" escape="false" />
         <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
+        <phingcall target="project:typo3:cache:clear_all" />
     </target>
 
 
