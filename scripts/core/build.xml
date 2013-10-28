@@ -117,11 +117,25 @@
         Symlink site into sites-enabled AND restart Apache.
     -->
     <target name="build:server" description="Symlink site into sites-enabled AND restart Apache">
+        <echo message="Finding config file for current environment..." />
+        <if>
+            <available file="${build.path}/config/httpd.${build.environment}.include" />
+            <then>
+                <echo message="Found config for [${build.environment}] environment." />
+                <property name="build.server_config" value="${build.path}/config/httpd.${build.environment}.include" />
+            </then>
+            <else>
+                <echo message="Did not find config for [${build.environment}] environment, using default." />
+                <property name="build.server_config" value="${build.path}/config/httpd.include" />
+            </else>
+        </if>
+        <echo message="...done." />
+
         <if>
             <os family="mac" />
             <then>
                 <echo message="On OSX, symlinking to /etc/apache2/vhosts..." />
-                <exec command="sudo ln -s ${build.path}/config/httpd.include /etc/apache2/vhosts/${build.name}.include" />
+                <exec command="sudo ln -s ${build.server_config} /etc/apache2/vhosts/${build.name}.include" />
                 <echo message="...done." />
                 <echo message="Reloading Apache config..." />
                 <exec command="sudo apachectl reload" />
@@ -129,7 +143,7 @@
             </then>
             <else>
                 <echo message="On Linux, symlinking to /etc/apache2/sites-enabled..." />
-                <exec command="sudo ln -s ${build.path}/config/httpd.include /etc/apache2/sites-enabled/${build.name}.include" />
+                <exec command="sudo ln -s ${build.server_config} /etc/apache2/sites-enabled/${build.name}.include" />
                 <echo message="...done." />
                 <echo message="Reloading Apache config..." />
                 <exec command="sudo service apache2 reload" />
@@ -170,7 +184,14 @@
         <phingcall target="project:build:before" />
         <phingcall target="build:skel" />
         <phingcall target="project:build:after" />
-        <phingcall target="build:server" />
+
+        <if>
+            <equals arg1="${build.environment}" arg2="production" />
+            <then>
+                <echo message="In production, setting server config..." />
+                <phingcall target="build:server" />
+            </then>
+        </if>
     </target>
 
     

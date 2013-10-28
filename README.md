@@ -128,6 +128,7 @@ When deploying to production, you should still be able to use `phing build`. Tas
 
 ```
 typo3:build:after This will update the database, but only in development
+build:server      This will only be run in development
 ```
 
 Refer to these tasks to see how you can achieve this yourself.
