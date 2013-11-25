@@ -105,11 +105,16 @@
             </fileset>
         </copy>
 
-        <chmod mode="0755">
-            <fileset dir="./bin">
-                <include name="*" />
-            </fileset>
-        </chmod>
+        <if>
+            <available file="./bin" />
+            <then>
+                <chmod mode="0755">
+                    <fileset dir="./bin">
+                        <include name="*" />
+                    </fileset>
+                </chmod>
+            </then>
+        </if>
     </target>
 
 
