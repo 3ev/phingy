@@ -5,6 +5,18 @@
 
 
     <!-- ==================================== -->
+    <!--              Properties              -->
+    <!-- ==================================== -->
+
+
+
+
+    <property name="sphinx.index_dir" value="${build.path}/data/sphinx/xmlpipe" />
+    
+    
+    
+    
+    <!-- ==================================== -->
     <!--                Tasks                 -->
     <!-- ==================================== -->
 
@@ -15,7 +27,7 @@
         Build before hook. Symlinks Sphinx.
     -->
     <target name="sphinx:build:before" description="Hook" hidden="true">
-       <chmod file="${build.path}/data/sphinx/xmlpipe" mode="0775" />
+       <chmod file="${sphinx.index_dir}" mode="0775" />
        <phingcall target="sphinx:symlink" />
     </target>
 
