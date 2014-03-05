@@ -1,6 +1,6 @@
-# Phingy
+#Phingy
 
-Current version: `0.4.2`
+Current version: `0.5.0`
 
 Phingy is a small collection of build scripts which you can mix together differently depending on your project. To use these scripts, you include the required ones in your build script starting with your own project.xml.
 
@@ -25,32 +25,12 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
         }
     ],
     "require": {
-        "3ev/phingy": "~1"
+        "3ev/phingy": "~0.5"
     },
     "scripts": {
         "post-package-install": [
             "Ev\\Phingy\\ComposerScripts::postPackageInstall"
         ]
-    }
-}
-```
-
-Specify a particular version with:
-
-```json
-{
-    "require": {
-        "3ev/phingy": "0.0.1"
-    }
-}
-```
-
-or to use the latest unstable build:
-
-```json
-{
-    "require": {
-        "3ev/phingy": "dev-master"
     }
 }
 ```
@@ -67,18 +47,18 @@ from Amazon S3, you will need to install the
 $ pear install Services_Amazon_S3
 ```
 
-## Avaiable tasksets
+##Avaiable tasksets
 
 Phingy ships with a set of base tasks and some platform specific tasks that you can use in your project. Use `$ phing -l` to see what's available, but a brief overview is as follows:
 
-### Core
+###Core
 
 - [build](https://github.com/3ev/phingy/blob/master/scripts/core/build.xml)
 Core set of tasks and framework hooks.
 - [db](https://github.com/3ev/phingy/blob/master/scripts/core/database.xml)
 Database specific functionality. Each platform will include this as a dependency if it's needed - you will not have to do this yourself.
 
-### Platform specific
+###Platform specific
 
 - [typo3](https://github.com/3ev/phingy/blob/master/scripts/platform/typo3.xml)
 Typo3 specific tasks (includes [db](https://github.com/3ev/phingy/blob/master/scripts/core/database.xml)). Will set up Typo3 on build, and provides some utility methods.
@@ -87,7 +67,7 @@ Sphinx specific tasks. Provides tasks to index Sphinx data for the project.
 - [wordpress](https://github.com/3ev/phingy/blob/master/scripts/platform/wordress.xml)
 Not yet implemented.
 
-## Setting up your project with Platforms
+##Setting up your project with Platforms
 
 When you run `composer install`, you will be prompted to pick a template to use for you project. Currently, only 'default' and 'typo3' are available. Selecting a template will create a file called `project.xml` in your projects' `config/` directory.
 
@@ -117,19 +97,19 @@ and then call each of its hooks in your project-specific hooks:
 
 **Note:** If you pick a non-default template (like 'typo3'), all of this will be handled for you.
 
-## Adding your own project specific tasks and config
+##Adding your own project specific tasks and config
 
 You can add any of your own tasks in `config/project.xml`. These should be namespaced with `project:`. You can either add standalone tasks, or call them in any of the available hooks.
 
-### Overriding existing tasks
+###Overriding existing tasks
 
 If you need to, you can override built in tasks by creating a new task with the same name in you `project.xml`. You shouldn't have to do this though, as the built in hooks provide enough flexibility for you to customise tasks.
 
-### Adding extra config
+###Adding extra config
 
 You add should any project specific config to `config/project.properties` if possible. If you need to prompt the user for it during build, you can do so in the `project:config` hook.
 
-## Deploying to production servers
+##Deploying to production servers
 
 When deploying to production, you should still be able to use `phing build`. Tasks can use the `${build.environment}` variable to decide whether or not they should be run. Some built in taks that make use of this are:
 
@@ -140,6 +120,6 @@ build:server      This will only be run in development
 
 Refer to these tasks to see how you can achieve this yourself.
 
-## About ./build.xml
+##About ./build.xml
 
 `build.xml` sits in the root of your project, and is symlinked from `vendor/`. You should add this file to your `.gitignore`.
