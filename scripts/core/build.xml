@@ -70,7 +70,7 @@
     -->
 
     <target name="build:config" description="Configure build" hidden="true">
-        <echo msg="Configuring build ================================" />
+        <echo msg="Configuring build..." />
 
         <if>
             <not>

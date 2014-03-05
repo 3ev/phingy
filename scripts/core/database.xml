@@ -49,7 +49,7 @@
     -->
 
     <target name="db:config" depends="build:config" description="Configure database" hidden="true">
-        <echo msg="Configuring database ================================" />
+        <echo msg="Configuring database..." />
 
         <if>
             <and>
