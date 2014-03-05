@@ -166,6 +166,12 @@
             target="${db.data_path}/create.sql.gz" />
         <echo msg="...done" />
         <echo msg="Unzipping structure..." />
+        <if>
+            <available file="${db.data_path}/create.sql" property="already_have_structure" />
+            <then>
+                <delete file="${db.data_path}/create.sql" />
+            </then>
+        </if>
         <exec command="gunzip ${db.data_path}/create.sql.gz" />
         <echo msg="...done" />
     </target>
@@ -180,6 +186,12 @@
             target="${db.data_path}/data.sql.gz" />
         <echo msg="...done" />
         <echo msg="Unzipping data..." />
+        <if>
+            <available file="${db.data_path}/data.sql" property="already_have_data" />
+            <then>
+                <delete file="${db.data_path}/data.sql" />
+            </then>
+        </if>
         <exec command="gunzip ${db.data_path}/data.sql.gz" />
         <echo msg="...done" />
     </target>
