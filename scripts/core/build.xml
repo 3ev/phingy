@@ -12,16 +12,22 @@
 
 
     <!-- This is where we store the configured properties -->
+
     <property name="paths.properties" value="${build.path}/config/phing.properties" />
 
     <!-- This is where we load static properties -->
+
     <property name="paths.project_properties" value="${build.path}/config/project.properties" />
 
     <!-- Check if we have the properties file -->
+
     <available file="${paths.properties}" property="hasPropertiesFile" />
 
-    <!-- Current directory name, Used for default property values-->
+    <!-- Current directory name, used for default property values -->
+
     <exec command="basename ${build.path}" dir="." checkreturn="true" outputProperty="build.basename" />
+
+    <!-- Configure default property values -->
 
     <property name="share.path" value="/share" />
     <property name="build.name" value="${build.basename}" />
@@ -29,6 +35,7 @@
     <property name="build.log_dir" value="${build.path}/logs" />
 
     <!-- Include configuration -->
+
     <property file="${paths.project_properties}" override="true" />
     <property file="${paths.properties}" override="true" />
 
@@ -41,10 +48,11 @@
 
 
 
-    
+
     <!--
         Base task: README
     -->
+
     <target name="readme" hidden="true">
         <echo msg="===================================" />
         <echo msg="===================================" />
@@ -60,6 +68,7 @@
     <!--
         Required configuration for all tasks.
     -->
+
     <target name="build:need_configuration" hidden="true">
         <if>
             <and>
@@ -78,9 +87,10 @@
         Configure the database.
         Call this in the platform config if it requires a database
     -->
+
     <target name="build:config" description="Configure build" hidden="true">
         <echo msg="Configuring build ================================" />
-        
+
         <input propertyname="build.environment" defaultValue="development" promptChar=" ?" validArgs="development,production">Environment</input>
         <input propertyname="build.url" defaultValue="${build.name}.3ev.in" promptChar=" ?">Build URL</input>
 
@@ -90,7 +100,8 @@
 
     <!--
         Applies configuration to skel files
-    -->    
+    -->
+
     <target name="build:skel" description="Applies configuration to skel files">
         <echo msg="Skel files..." />
 
@@ -121,6 +132,7 @@
     <!--
         Symlink site into sites-enabled AND restart Apache.
     -->
+
     <target name="build:server" description="Symlink site into sites-enabled AND restart Apache">
         <echo message="Finding config file for current environment..." />
         <if>
@@ -161,6 +173,7 @@
     <!--
         Housekeeping task
     -->
+
     <target name="build:housekeeping" description="Delete everything which isn't required for the running of the site. Logs etc">
         <phingcall target="project:build:housekeeping" />
     </target>
@@ -169,6 +182,7 @@
     <!--
         Exports properties to specified ${paths.properties}
     -->
+
     <target name="build:save_config" hidden="true">
         <exportproperties targetfile="${paths.properties}" />
     </target>
@@ -177,13 +191,14 @@
     <!--
         The main build task
     -->
+
     <target name="build" description="Build the project">
         <chmod file="${build.log_dir}" mode="0777" />
         <touch file="${build.log_dir}/apache_access.log" />
         <chmod file="${build.log_dir}/apache_access.log" mode="0777" />
         <touch file="${build.log_dir}/apache_error.log" />
         <chmod file="${build.log_dir}/apache_error.log" mode="0777" />
-        <touch file="${build.log_dir}/php_errors.log" /> 
+        <touch file="${build.log_dir}/php_errors.log" />
         <chmod file="${build.log_dir}/php_errors.log" mode="0777" />
 
         <phingcall target="project:build:before" />
@@ -199,7 +214,7 @@
         </if>
     </target>
 
-    
 
-    
+
+
 </project>
