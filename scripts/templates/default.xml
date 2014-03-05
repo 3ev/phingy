@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="" basedir="." default="...">
-      
-    
+
+
 
 
     <!-- ==================================== -->
     <!--             Dependencies             -->
-    <!-- ==================================== --> 
+    <!-- ==================================== -->
 
 
 
@@ -30,26 +30,33 @@
 
     <!-- ==================================== -->
     <!--                Tasks                 -->
-    <!-- ==================================== -->   
-    
+    <!-- ==================================== -->
 
 
-    
+
+
+    <target name="project:config" depends="build:config" hidden="true">
+        <echo msg="Running project:config" />
+        <!-- Configure project specific config, as well as default config -->
+    </target>
+
+
     <target name="project:build:before" hidden="true">
         <echo msg="Running project:build:before" />
         <!-- Do stuff before the build is run -->
     </target>
-    
+
+
     <target name="project:build:after" hidden="true">
         <echo msg="Running project:build:after" />
         <!-- Do stuff after the build is run -->
     </target>
-    
+
+
     <target name="project:build:housekeeping" hidden="true">
         <echo msg="Running project:build:housekeeping" />
-        <!-- 
-            Delete your crap.
-            You must delete everything which doesn’t matter. Logs, temp files, caches, etc. Leave directory structure and permissions intact.
+        <!--
+            Cleanup build
         -->
     </target>
 

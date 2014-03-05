@@ -12,15 +12,24 @@
 
 
     <property name="sphinx.index_dir" value="${build.path}/data/sphinx/xmlpipe" />
-    
-    
-    
-    
+
+
+
+
     <!-- ==================================== -->
     <!--                Tasks                 -->
     <!-- ==================================== -->
 
 
+
+
+    <!--
+        Setup Sphinx specific config.
+    -->
+
+    <target name="sphinx:config" hidden="true">
+        <echo message="No Sphinx config required" />
+    </target>
 
 
     <!--
@@ -51,7 +60,7 @@
     <!--
         Symlink Sphinx
     -->
-    <target name="sphinx:symlink" description="Setup the Sphinx symlink" depends="build:need_configuration" hidden="true">
+    <target name="sphinx:symlink" description="Setup the Sphinx symlink" depends="build:config" hidden="true">
         <if>
             <available file="${build.path}/config/sphinx.conf" property="sphinx_config_exists" />
             <then>

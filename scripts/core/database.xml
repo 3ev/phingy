@@ -48,7 +48,7 @@
         Call this in the platform config if it requires a database
     -->
 
-    <target name="db:build:config" description="Configure database" hidden="true" depends="build:need_configuration">
+    <target name="db:build:config" depends="build:config" description="Configure database" hidden="true">
         <echo msg="Configuring database ================================" />
 
         <if>

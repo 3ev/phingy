@@ -94,6 +94,7 @@ When you run `composer install`, you will be prompted to pick a template to use 
 The `project.xml` file includes a number of hooks you can add to for project-specific tasks. Currently, These are:
 
 ```
+project:config                Configure extra properties to use in your build
 project:build:before          Run some tasks before `build`
 project:build:after           Run some tasks after `build`
 project:build:housekeeping    Cleanup any uneeded files or data
@@ -126,7 +127,7 @@ If you need to, you can override built in tasks by creating a new task with the 
 
 ### Adding extra config
 
-You add should any project specific config to `config/project.properties` if possible. If you need to prompt the user for it during build, you can create your own `project:need_configuration` task and depend on it.
+You add should any project specific config to `config/project.properties` if possible. If you need to prompt the user for it during build, you can do so in the `project:config` hook.
 
 ## Deploying to production servers
 

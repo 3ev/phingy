@@ -66,35 +66,43 @@
 
 
     <!--
-        Required configuration for all tasks.
-    -->
-
-    <target name="build:need_configuration" hidden="true">
-        <if>
-            <and>
-                <isset property="build.environment" />
-                <isset property="build.url" />
-            </and>
-            <then></then>
-            <else>
-                <phingcall target="build:config" />
-            </else>
-        </if>
-    </target>
-
-
-    <!--
-        Configure the database.
-        Call this in the platform config if it requires a database
+        Configure required build values.
     -->
 
     <target name="build:config" description="Configure build" hidden="true">
         <echo msg="Configuring build ================================" />
 
-        <input propertyname="build.environment" defaultValue="development" promptChar=" ?" validArgs="development,production">Environment</input>
-        <input propertyname="build.url" defaultValue="${build.name}.3ev.in" promptChar=" ?">Build URL</input>
+        <if>
+            <not>
+                <isset property="build.environment" />
+            </not>
+            <then>
+                <propertyPrompt
+                    propertyName="build.environment"
+                    defaultValue="development"
+                    promptText="Environment"
+                    useExistingValue="true"
+                />
 
-        <phingcall target="build:save_config" />
+                <phingcall target="build:save_config" />
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="build.url" />
+            </not>
+            <then>
+                <propertyPrompt
+                    propertyName="build.url"
+                    defaultValue="${build.name}.3ev.in"
+                    promptText="Build URL"
+                    useExistingValue="true"
+                />
+
+                <phingcall target="build:save_config" />
+            </then>
+        </if>
     </target>
 
 
@@ -102,7 +110,7 @@
         Applies configuration to skel files
     -->
 
-    <target name="build:skel" description="Applies configuration to skel files">
+    <target name="build:skel" depends="project:config" description="Applies configuration to skel files">
         <echo msg="Skel files..." />
 
         <copy todir="" overwrite="true">
@@ -133,7 +141,7 @@
         Symlink site into sites-enabled AND restart Apache.
     -->
 
-    <target name="build:server" description="Symlink site into sites-enabled AND restart Apache">
+    <target name="build:server" depends="build:config" description="Symlink site into sites-enabled AND restart Apache">
         <echo message="Finding config file for current environment..." />
         <if>
             <available file="${build.path}/config/httpd.${build.environment}.include" />
@@ -184,7 +192,9 @@
     -->
 
     <target name="build:save_config" hidden="true">
+        <echo message="Property updated, saving..." />
         <exportproperties targetfile="${paths.properties}" />
+        <echo message="...done" />
     </target>
 
 
@@ -192,7 +202,7 @@
         The main build task
     -->
 
-    <target name="build" description="Build the project">
+    <target name="build" depends="project:config" description="Build the project">
         <chmod file="${build.log_dir}" mode="0777" />
         <touch file="${build.log_dir}/apache_access.log" />
         <chmod file="${build.log_dir}/apache_access.log" mode="0777" />

@@ -34,6 +34,13 @@
 
 
 
+    <!--
+        Setup TYPO3 specific config.
+    -->
+
+    <target name="typo3:config" depends="db:config" hidden="true">
+    </target>
+
 
     <!--
         Sets up the directories and permissions required by TYPO3.
