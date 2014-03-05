@@ -1,7 +1,10 @@
 {
     "name": "3ev/phingy",
+
     "description": "A useful collection of build scripts for managing PHP sites",
+
     "homepage": "http://github.com/3ev/phingy",
+
     "authors": [
         {
             "name": "3ev",
@@ -9,16 +12,7 @@
             "homepage": "http://www.3ev.com"
         }
     ],
-    "require": {
-        "pear-pear/Services_Amazon_S3": "0.4.0"
-    },
-    "repositories": [
-        {
-            "type": "pear",
-            "url": "http://pear.php.net"
-        }
-    ],
-    "minimum-stability": "dev",
+
     "autoload": {
         "psr-0": {
             "Ev\\Phingy": "src/"

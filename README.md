@@ -12,7 +12,7 @@ $ phing build
 
 call. If you need to do anything else, it's not doing its job!
 
-## Installation
+##Installation & Dependencies
 
 Phingy is installed via [Composer](http://getcomposer.org/). Add the following to your project's `composer.json` and run `composer install`:
 
@@ -22,14 +22,10 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
         {
             "type": "vcs",
             "url": "https://github.com/3ev/phingy"
-        },
-        {
-            "type": "pear",
-            "url": "http://pear.php.net"
         }
     ],
     "require": {
-        "3ev/phingy": "dev-master"
+        "3ev/phingy": "~1"
     },
     "scripts": {
         "post-package-install": [
@@ -60,6 +56,16 @@ or to use the latest unstable build:
 ```
 
 As Phingy is a private Github repo, you will be prompted for your username and password the first time you install it on a project.
+
+###Database tasks & S3
+
+If you'd like to make use of the database tasks that push/pull database dumps
+from Amazon S3, you will need to install the
+[Pear Amazon S3 package](http://pear.php.net/package/Services_Amazon_S3/):
+
+```sh
+$ pear install Services_Amazon_S3
+```
 
 ## Avaiable tasksets
 
