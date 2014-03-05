@@ -227,7 +227,7 @@
     -->
 
     <target name="db:data:load" depends="db:config, db:data:empty" description="Empty the database and reload from data/db/data.sql">
-        <exec command="bash bin/mysql &lt; ${db.data_path}/data.sql" escape="false" />
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/data.sql" />
     </target>
 
 
