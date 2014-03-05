@@ -55,9 +55,7 @@
 
     <target name="project:build:housekeeping" hidden="true">
         <echo msg="Running project:build:housekeeping" />
-        <!--
-            Cleanup build
-        -->
+        <!-- Cleanup build -->
     </target>
 
 

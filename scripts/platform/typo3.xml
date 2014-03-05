@@ -34,11 +34,13 @@
 
 
 
+
     <!--
         Setup TYPO3 specific config.
     -->
 
     <target name="typo3:config" depends="db:config" hidden="true">
+        <echo message="No TYPO3 config required" />
     </target>
 
 
@@ -46,6 +48,7 @@
         Sets up the directories and permissions required by TYPO3.
         Symlinks TYPO3 into this environment.
     -->
+
     <target name="typo3:build:before" hidden="true">
         <mkdir dir="${build.public_dir}/typo3temp" />
         <mkdir dir="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" />
@@ -63,6 +66,7 @@
     <!--
         After build. Creates database and caches routes.
     -->
+
     <target name="typo3:build:after" hidden="true">
         <if>
             <equals arg1="${build.environment}" arg2="development" />
@@ -103,6 +107,7 @@
     <!--
         Housekeeping. Nothing here yet.
     -->
+
     <target name="typo3:build:housekeeping" hidden="true">
         <echo message="Not used" />
     </target>
@@ -111,6 +116,7 @@
     <!--
         Creates the ENABLE_INSTALL_TOOL file
     -->
+
     <target name="typo3:install_tool:enable" description="Creates the ENABLE_INSTALL_TOOL file">
         <touch file="${build.public_dir}/typo3conf/ENABLE_INSTALL_TOOL" />
     </target>
@@ -119,6 +125,7 @@
     <!--
         Removes the ENABLE_INSTALL_TOOL file
     -->
+
     <target name="typo3:install_tool:disable" description="Removes the ENABLE_INSTALL_TOOL file">
         <delete file="${build.public_dir}/typo3conf/ENABLE_INSTALL_TOOL" />
     </target>
@@ -127,6 +134,7 @@
     <!--
         Cache MCA routes so Zend works inside TYPO3.
     -->
+
     <target name="typo3:cache:routes" description="Cache MCA routes">
         <if>
             <available file="${build.public_dir}/typo3conf/ext/zend_fe" type="dir" />
@@ -143,6 +151,7 @@
     <!--
         Clear all Typo3 caches
     -->
+
     <target name="typo3:cache:clear_all" description="Completely clear TYPO3 temp and routing caches">
         <exec command="sudo rm htdocs/typo3temp/*" escape="false" />
         <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
@@ -153,6 +162,7 @@
     <!--
         Clear cached config
     -->
+
     <target name="typo3:cache:clear_config" description="Clear cached TYPO3 config">
         <exec command="sudo rm htdocs/typo3conf/Cache/Code/cache_core/ext_*" escape="false" />
         <exec command="sudo rm htdocs/typo3conf/Cache/Code/cache_core/tca_*" escape="false" />
@@ -163,6 +173,7 @@
     <!--
         Clear cached routing
     -->
+
     <target name="typo3:cache:clear_routes" description="Clear cached TYPO3 routing">
         <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
         <exec command="sudo rm htdocs/typo3temp/routes.ini" escape="false" />
@@ -172,6 +183,7 @@
     <!--
         Compile all site static assets.
     -->
+
     <target name="typo3:compile:all" description="Compile all site static assets">
         <if>
             <isset property="site_assets_ext" />
@@ -189,6 +201,7 @@
     <!--
         Compile site JavaScript
     -->
+
     <target name="typo3:compile:javascript" description="Compile Require.js files">
         <echo msg="Compiling JavaScript for the '${site_assets_ext}' extension..." />
         <exec command="node htdocs/typo3conf/ext/tev_boilerplate/Resources/Public/js/r.js -o htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/js/build.js" escape="false" passthru="true" />
@@ -199,6 +212,7 @@
     <!--
         Compile site CSS
     -->
+
     <target name="typo3:compile:css" description="Compile SASS files">
         <echo msg="Compiling SASS for the '${site_assets_ext}' extension..." />
 
@@ -214,6 +228,7 @@
     <!--
         Watch site SASS files in development
     -->
+
     <target name="typo3:sass:watch" description="Watch SASS files in development">
         <phingcall target="typo3:sass:create_output_dir" />
         <exec command="sass -gl --watch htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/sass/style.scss:htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css/style.css --style expanded" escape="false" passthru="true" />
@@ -223,6 +238,7 @@
     <!--
         Create compiled SASS directory
     -->
+
     <target name="typo3:sass:create_output_dir" hidden="true" description="Create compiled SASS directory">
         <mkdir dir="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled" />
         <mkdir dir="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css" />

@@ -35,7 +35,8 @@
     <!--
         Build before hook. Symlinks Sphinx.
     -->
-    <target name="sphinx:build:before" description="Hook" hidden="true">
+
+    <target name="sphinx:build:before" hidden="true">
        <chmod file="${sphinx.index_dir}" mode="0775" />
        <phingcall target="sphinx:symlink" />
     </target>
@@ -44,7 +45,8 @@
     <!--
         Build after hook. Indexes data.
     -->
-    <target name="sphinx:build:after" description="Hook" hidden="true">
+
+    <target name="sphinx:build:after" hidden="true">
         <phingcall target="sphinx:index" />
     </target>
 
@@ -52,7 +54,8 @@
     <!--
         Housekeeping hook. Not used.
     -->
-    <target name="sphinx:build:housekeeping" description="Hook" hidden="true">
+
+    <target name="sphinx:build:housekeeping" hidden="true">
         <echo message="Not used" />
     </target>
 
@@ -60,7 +63,8 @@
     <!--
         Symlink Sphinx
     -->
-    <target name="sphinx:symlink" description="Setup the Sphinx symlink" depends="build:config" hidden="true">
+
+    <target name="sphinx:symlink" depends="build:config" description="Setup the Sphinx symlink" hidden="true">
         <if>
             <available file="${build.path}/config/sphinx.conf" property="sphinx_config_exists" />
             <then>
@@ -78,6 +82,7 @@
     <!--
         Index Sphinx indexes
     -->
+
     <target name="sphinx:index" description="Index all Sphinx indexes">
         <if>
             <available file="${build.path}/config/sphinx.conf" property="sphinx_config_exists" />

@@ -2,7 +2,7 @@
 <project name="build" basedir="." default="readme">
     <exec command="pwd" dir="." checkreturn="true" outputProperty="build.path" />
     <property name="phingy.path" value="${build.path}/vendor/3ev/phingy" />
-    
+
     <import file="${build.path}/config/project.xml" />
     <import file="${phingy.path}/scripts/core/build.xml" />
 </project>
