@@ -12,19 +12,25 @@
 
 
     <!-- Override memory limit -->
+
     <php expression="ini_set('memory_limit', '-1');" level="verbose" />
 
     <!-- Set timestamp -->
+
     <tstamp />
 
-    <!-- used for permanent backups -->
+    <!-- Used for permanent backups -->
+
     <php expression="date('d-F-Y')" returnProperty="time.today" level="verbose" />
+
+    <!-- Base property values -->
 
     <property name="db.data_path" value="${build.path}/data/db" />
     <property name="amazon.key" value="${s3.key}" />
     <property name="amazon.secret" value="${s3.secret}" />
 
     <!-- Load the PDOSQLEXEC task -->
+
     <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask" />
 
 
@@ -41,6 +47,7 @@
         Configure the database.
         Call this in the platform config if it requires a database
     -->
+
     <target name="db:build:config" description="Configure database" hidden="true" depends="build:need_configuration">
         <echo msg="Configuring database ================================" />
 
@@ -158,6 +165,10 @@
     <!--
         The create, drop, recreate and empty targets
     -->
+
+
+    <!-- Creates the MySQL database -->
+
     <target name="db:create" depends="db:build:config, db:drop" description="Create the database including privileges">
         <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask"/>
         <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
@@ -171,6 +182,7 @@
 
 
     <!-- Drops the MySQL database -->
+
     <target name="db:drop" depends="db:build:config" description="Drop the database">
         <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
             DROP DATABASE if exists ${db.name};
@@ -180,12 +192,14 @@
 
 
     <!-- Alias: db:drop, db:create -->
-    <target name="db:recreate" description="Drops and recreates the database" depends="db:build:config, db:drop, db:create">
+
+    <target name="db:recreate" depends="db:build:config, db:drop, db:create" description="Drops and recreates the database">
     </target>
 
 
     <!-- Empty the database -->
-    <target name="db:data:empty" description="Truncate all tables" depends="db:build:config">
+
+    <target name="db:data:empty" depends="db:build:config" description="Truncate all tables">
         <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}">
             SELECT CONCAT('TRUNCATE TABLE ',table_name, ';') FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE();
         <formatter type="plain" outfile="${db.data_path}/truncate.sql" showheaders="false" coldelim="" />
@@ -199,19 +213,24 @@
     <!--
         The loading, dumping, updating methods for structure and data
     -->
+
+
     <!-- Create the database structure -->
+
     <target name="db:structure:load" depends="db:build:config, db:drop, db:create" description="Recreate the DB and load structure from data/db/create.sql">
         <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/create.sql" />
     </target>
 
 
     <!-- Populate the database -->
+
     <target name="db:data:load" depends="db:build:config, db:data:empty" description="Empty the database and reload from data/db/data.sql">
         <exec command="bash bin/mysql &lt; ${db.data_path}/data.sql" escape="false" />
     </target>
 
 
     <!-- Dump the data -->
+
     <target name="db:data:dump" depends="db:build:config" description="Dump DB structure into data/db/data.sql">
         <echo msg="MySQL dump data into ${db.data_path}/data.sql" />
         <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/data.sql" />
@@ -219,6 +238,7 @@
 
 
     <!-- Dump the structure -->
+
     <target name="db:structure:dump" depends="db:build:config" description="Dump DB structure into data/db/create.sql">
         <echo msg="MySQL dump structure into ${db.data_path}/create.sql" />
         <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/create.sql" />
@@ -226,6 +246,7 @@
 
 
     <!-- Update DB structure from S3 -->
+
     <target name="db:structure:update" depends="db:build:config" description="Download structure file from S3 to data/db/create.sql">
         <echo msg="Pulling structure from: database.${project.name}.3ev.me..." />
         <s3get
@@ -246,6 +267,7 @@
 
 
     <!-- Update DB data from S3 -->
+
     <target name="db:data:update" depends="db:build:config" description="Download data file from S3 to data/db/data.sql">
         <echo msg="Pulling data from: database.${project.name}.3ev.me..." />
         <s3get
@@ -266,6 +288,7 @@
 
 
     <!-- Uploads the structure + data file to S3, keeps forever -->
+
     <target name="db:commit:forever" depends="db:build:config" description="Upload structure + data to S3, forever">
         <echo msg="Gzipping structure..." />
         <exec command="gzip ${db.data_path}/create.sql" />
@@ -299,6 +322,7 @@
 
 
     <!-- Uploads the structure file to S3 -->
+
     <target name="db:structure:commit" depends="db:build:config" description="Upload structure to S3 from data/db/create.sql">
         <echo msg="Gzipping structure..." />
         <exec command="gzip ${db.data_path}/create.sql" />
@@ -319,6 +343,7 @@
 
 
     <!-- Uploads the data file to S3 -->
+
     <target name="db:data:commit" depends="db:build:config" description="Upload data to S3 from data/db/data.sql">
         <echo msg="Gzipping data..." />
         <exec command="gzip ${db.data_path}/data.sql" />
@@ -347,6 +372,7 @@
         Updates structure + data files
         Call db:reload
     -->
+
     <target name="db:update" depends="db:build:config, db:structure:update, db:data:update, db:reload" description="Download structure, data from S3 and load">
         <exec command="rm ${db.data_path}/create.sql" />
         <exec command="rm ${db.data_path}/data.sql" />
@@ -357,16 +383,16 @@
         Drops + Creates the database
         Loads structure + data
     -->
+
     <target name="db:reload" depends="db:build:config, db:structure:load, db:data:load" description="Recreate DB + load data">
-        <!-- see the 'depends' attribute -->
     </target>
 
 
     <!--
         Dumps data and pushes to S3
     -->
+
     <target name="db:commit" depends="db:build:config, db:structure:dump, db:structure:commit, db:data:dump, db:data:commit" description="Dump, zip and push data to S3">
-        <!-- see the 'depends' attribute -->
     </target>
 
 
