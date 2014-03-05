@@ -15,15 +15,12 @@
     <php expression="ini_set('memory_limit', '-1');" level="verbose" />
 
     <!-- Set timestamp -->
-    <tstamp/>
+    <tstamp />
 
     <!-- used for permanent backups -->
     <php expression="date('d-F-Y')" returnProperty="time.today" level="verbose" />
 
     <property name="db.data_path" value="${build.path}/data/db" />
-    <property name="db.host" value="localhost" />
-    <property name="db.root.user" value="root" />
-    <property name="db.root.pass" value="" />
     <property name="amazon.key" value="${s3.key}" />
     <property name="amazon.secret" value="${s3.secret}" />
 
@@ -41,56 +38,127 @@
 
 
     <!--
-        Required configuration for the database tasks.
-    -->
-    <target name="db:need_configuration" hidden="true">
-        <if>
-            <and>
-                <isset property="db.host" />
-                <isset property="db.user" />
-                <isset property="db.pass" />
-                <isset property="db.name" />
-                <isset property="db.root.user" />
-                <isset property="db.root.pass" />
-                <isset property="db.data_path" />
-                <isset property="s3.key" />
-                <isset property="s3.secret" />
-                <isset property="amazon.key" />
-                <isset property="amazon.secret" />
-            </and>
-            <then>
-                <property name="db.is_configured" value="true" />
-            </then>
-            <else>
-                <property name="db.is_configured" value="false" />
-                <phingcall target="db:build:config" />
-            </else>
-        </if>
-    </target>
-
-
-    <!--
         Configure the database.
         Call this in the platform config if it requires a database
     -->
     <target name="db:build:config" description="Configure database" hidden="true" depends="build:need_configuration">
         <echo msg="Configuring database ================================" />
 
-        <input propertyname="db.host" defaultValue="${db.host}" promptChar=" ?">MySQL Host</input>
-        <input propertyname="db.user" defaultValue="${build.basename}" promptChar=" ?">MySQL User</input>
-        <input propertyname="db.pass" defaultValue="${db.user}" promptChar=" ?">MySQL Password</input>
-        <input propertyname="db.name" defaultValue="${db.user}" promptChar=" ?">MySQL DB Name</input>
-        <input propertyname="db.root.user" defaultValue="${db.root.user}" promptChar=" ?">MySQL root User</input>
-        <input propertyname="db.root.pass" defaultValue="${db.root.pass}" promptChar=" ?">MySQL root Password</input>
+        <if>
+            <and>
+                <isset property="s3.key" />
+                <isset property="s3.secret" />
+                <isset property="amazon.key" />
+                <isset property="amazon.secret" />
+            </and>
+            <then></then>
+            <else>
+                <fail message="S3 keys not set - please set in project.properties" />
+            </else>
+        </if>
 
-        <phingcall target="build:save_config" />
+        <if>
+            <not>
+                <isset property="db.host" />
+            </not>
+            <then>
+                <propertyPrompt
+                    propertyName="db.host"
+                    defaultValue="localhost"
+                    promptText="MySQL Host"
+                    useExistingValue="true"
+                />
+
+                <phingcall target="build:save_config" />
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="db.user" />
+            </not>
+            <then>
+                <propertyprompt
+                    propertyName="db.user"
+                    defaultValue="${build.basename}"
+                    promptText="MySQL User"
+                    useExistingValue="true"
+                />
+
+                <phingcall target="build:save_config" />
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="db.pass" />
+            </not>
+            <then>
+                <propertyprompt
+                    propertyName="db.pass"
+                    defaultValue="${db.user}"
+                    promptText="MySQL Password"
+                    useExistingValue="true"
+                />
+
+                <phingcall target="build:save_config" />
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="db.name" />
+            </not>
+            <then>
+                <propertyprompt
+                    propertyName="db.name"
+                    defaultValue="${db.user}"
+                    promptText="MySQL DB Name"
+                    useExistingValue="true"
+                />
+
+                <phingcall target="build:save_config" />
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="db.root.user" />
+            </not>
+            <then>
+                <propertyprompt
+                    propertyName="db.root.user"
+                    defaultValue="root"
+                    promptText="MySQL root User"
+                    useExistingValue="true"
+                />
+
+                <phingcall target="build:save_config" />
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="db.root.pass" />
+            </not>
+            <then>
+                <propertyprompt
+                    propertyName="db.root.pass"
+                    defaultValue=""
+                    promptText="MySQL root Password"
+                    useExistingValue="true"
+                />
+
+                <phingcall target="build:save_config" />
+            </then>
+        </if>
     </target>
 
 
     <!--
         The create, drop, recreate and empty targets
     -->
-    <target name="db:create" depends="db:need_configuration, db:drop" description="Create the database including privileges">
+    <target name="db:create" depends="db:build:config, db:drop" description="Create the database including privileges">
         <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask"/>
         <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
             CREATE DATABASE IF NOT EXISTS ${db.name} CHARACTER SET utf8;
@@ -103,7 +171,7 @@
 
 
     <!-- Drops the MySQL database -->
-    <target name="db:drop" depends="db:need_configuration" description="Drop the database">
+    <target name="db:drop" depends="db:build:config" description="Drop the database">
         <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
             DROP DATABASE if exists ${db.name};
         </pdosqlexec>
@@ -112,12 +180,12 @@
 
 
     <!-- Alias: db:drop, db:create -->
-    <target name="db:recreate" description="Drops and recreates the database" depends="db:need_configuration, db:drop, db:create">
+    <target name="db:recreate" description="Drops and recreates the database" depends="db:build:config, db:drop, db:create">
     </target>
 
 
     <!-- Empty the database -->
-    <target name="db:data:empty" description="Truncate all tables" depends="db:need_configuration">
+    <target name="db:data:empty" description="Truncate all tables" depends="db:build:config">
         <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}">
             SELECT CONCAT('TRUNCATE TABLE ',table_name, ';') FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE();
         <formatter type="plain" outfile="${db.data_path}/truncate.sql" showheaders="false" coldelim="" />
@@ -132,33 +200,33 @@
         The loading, dumping, updating methods for structure and data
     -->
     <!-- Create the database structure -->
-    <target name="db:structure:load" depends="db:need_configuration, db:drop, db:create" description="Recreate the DB and load structure from data/db/create.sql">
+    <target name="db:structure:load" depends="db:build:config, db:drop, db:create" description="Recreate the DB and load structure from data/db/create.sql">
         <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/create.sql" />
     </target>
 
 
     <!-- Populate the database -->
-    <target name="db:data:load" depends="db:need_configuration, db:data:empty" description="Empty the database and reload from data/db/data.sql">
+    <target name="db:data:load" depends="db:build:config, db:data:empty" description="Empty the database and reload from data/db/data.sql">
         <exec command="bash bin/mysql &lt; ${db.data_path}/data.sql" escape="false" />
     </target>
 
 
     <!-- Dump the data -->
-    <target name="db:data:dump" depends="db:need_configuration" description="Dump DB structure into data/db/data.sql">
+    <target name="db:data:dump" depends="db:build:config" description="Dump DB structure into data/db/data.sql">
         <echo msg="MySQL dump data into ${db.data_path}/data.sql" />
         <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/data.sql" />
     </target>
 
 
     <!-- Dump the structure -->
-    <target name="db:structure:dump" depends="db:need_configuration" description="Dump DB structure into data/db/create.sql">
+    <target name="db:structure:dump" depends="db:build:config" description="Dump DB structure into data/db/create.sql">
         <echo msg="MySQL dump structure into ${db.data_path}/create.sql" />
         <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/create.sql" />
     </target>
 
 
     <!-- Update DB structure from S3 -->
-    <target name="db:structure:update" depends="db:need_configuration" description="Download structure file from S3 to data/db/create.sql">
+    <target name="db:structure:update" depends="db:build:config" description="Download structure file from S3 to data/db/create.sql">
         <echo msg="Pulling structure from: database.${project.name}.3ev.me..." />
         <s3get
             bucket="database.${project.name}.3ev.me"
@@ -178,7 +246,7 @@
 
 
     <!-- Update DB data from S3 -->
-    <target name="db:data:update" depends="db:need_configuration" description="Download data file from S3 to data/db/data.sql">
+    <target name="db:data:update" depends="db:build:config" description="Download data file from S3 to data/db/data.sql">
         <echo msg="Pulling data from: database.${project.name}.3ev.me..." />
         <s3get
             bucket="database.${project.name}.3ev.me"
@@ -198,7 +266,7 @@
 
 
     <!-- Uploads the structure + data file to S3, keeps forever -->
-    <target name="db:commit:forever" depends="db:need_configuration" description="Upload structure + data to S3, forever">
+    <target name="db:commit:forever" depends="db:build:config" description="Upload structure + data to S3, forever">
         <echo msg="Gzipping structure..." />
         <exec command="gzip ${db.data_path}/create.sql" />
         <echo msg="...done" />
@@ -231,7 +299,7 @@
 
 
     <!-- Uploads the structure file to S3 -->
-    <target name="db:structure:commit" depends="db:need_configuration" description="Upload structure to S3 from data/db/create.sql">
+    <target name="db:structure:commit" depends="db:build:config" description="Upload structure to S3 from data/db/create.sql">
         <echo msg="Gzipping structure..." />
         <exec command="gzip ${db.data_path}/create.sql" />
         <echo msg="...done" />
@@ -251,7 +319,7 @@
 
 
     <!-- Uploads the data file to S3 -->
-    <target name="db:data:commit" depends="db:need_configuration" description="Upload data to S3 from data/db/data.sql">
+    <target name="db:data:commit" depends="db:build:config" description="Upload data to S3 from data/db/data.sql">
         <echo msg="Gzipping data..." />
         <exec command="gzip ${db.data_path}/data.sql" />
         <echo msg="...done" />
@@ -279,7 +347,7 @@
         Updates structure + data files
         Call db:reload
     -->
-    <target name="db:update" depends="db:need_configuration, db:structure:update, db:data:update, db:reload" description="Download structure, data from S3 and load">
+    <target name="db:update" depends="db:build:config, db:structure:update, db:data:update, db:reload" description="Download structure, data from S3 and load">
         <exec command="rm ${db.data_path}/create.sql" />
         <exec command="rm ${db.data_path}/data.sql" />
     </target>
@@ -289,7 +357,7 @@
         Drops + Creates the database
         Loads structure + data
     -->
-    <target name="db:reload" depends="db:need_configuration, db:structure:load, db:data:load" description="Recreate DB + load data">
+    <target name="db:reload" depends="db:build:config, db:structure:load, db:data:load" description="Recreate DB + load data">
         <!-- see the 'depends' attribute -->
     </target>
 
@@ -297,7 +365,7 @@
     <!--
         Dumps data and pushes to S3
     -->
-    <target name="db:commit" depends="db:need_configuration, db:structure:dump, db:structure:commit, db:data:dump, db:data:commit" description="Dump, zip and push data to S3">
+    <target name="db:commit" depends="db:build:config, db:structure:dump, db:structure:commit, db:data:dump, db:data:commit" description="Dump, zip and push data to S3">
         <!-- see the 'depends' attribute -->
     </target>
 
