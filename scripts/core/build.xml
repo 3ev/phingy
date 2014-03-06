@@ -141,7 +141,7 @@
         Symlink site into sites-enabled AND restart Apache.
     -->
 
-    <target name="build:server" depends="build:config" description="Symlink site into sites-enabled AND restart Apache">
+    <target name="build:server" description="Symlink site into sites-enabled AND restart Apache">
         <echo message="Finding config file for current environment..." />
         <if>
             <available file="${build.path}/config/httpd.${build.environment}.include" />

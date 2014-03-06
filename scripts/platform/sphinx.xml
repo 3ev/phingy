@@ -64,7 +64,7 @@
         Symlink Sphinx
     -->
 
-    <target name="sphinx:symlink" depends="build:config" description="Setup the Sphinx symlink" hidden="true">
+    <target name="sphinx:symlink" description="Setup the Sphinx symlink" hidden="true">
         <if>
             <available file="${build.path}/config/sphinx.conf" property="sphinx_config_exists" />
             <then>
