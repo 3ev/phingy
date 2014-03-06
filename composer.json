@@ -13,9 +13,19 @@
         }
     ],
 
+    "require": {
+        "phing/phing": "~2.7"
+    },
+
     "autoload": {
         "psr-0": {
             "Ev\\Phingy": "src/"
         }
-    }
+    },
+
+    "config": {
+        "preferred-install": "dist"
+    },
+
+    "prefer-stable": true
 }

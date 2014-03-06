@@ -7,7 +7,7 @@ Phingy is a small collection of build scripts which you can mix together differe
 Using Phingy will mean that your project will be able to be built in its entirety with a simple
 
 ```sh
-$ phing build
+$ bin/phing build
 ```
 
 call. If you need to do anything else, it's not doing its job!
@@ -31,11 +31,20 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
         "post-package-install": [
             "Ev\\Phingy\\ComposerScripts::postPackageInstall"
         ]
+    },
+    "config": {
+        "bin-dir": "bin"
     }
 }
 ```
 
 As Phingy is a private Github repo, you will be prompted for your username and password the first time you install it on a project.
+
+###Phing
+
+Phing is installed as a dependency, with the binary by default being placed at
+`vendor/bin/phing`. Adding the `bin-dir` config to your `composer.json` will
+move it to `bin/phing` for convenience.
 
 ###Database tasks & S3
 
@@ -49,7 +58,7 @@ $ pear install Services_Amazon_S3
 
 ##Avaiable tasksets
 
-Phingy ships with a set of base tasks and some platform specific tasks that you can use in your project. Use `$ phing -l` to see what's available, but a brief overview is as follows:
+Phingy ships with a set of base tasks and some platform specific tasks that you can use in your project. Use `$ bin/phing -l` to see what's available, but a brief overview is as follows:
 
 ###Core
 
@@ -111,7 +120,7 @@ You add should any project specific config to `config/project.properties` if pos
 
 ##Deploying to production servers
 
-When deploying to production, you should still be able to use `phing build`. Tasks can use the `${build.environment}` variable to decide whether or not they should be run. Some built in taks that make use of this are:
+When deploying to production, you should still be able to use `bin/phing build`. Tasks can use the `${build.environment}` variable to decide whether or not they should be run. Some built in taks that make use of this are:
 
 ```
 typo3:build:after This will update the database, but only in development
