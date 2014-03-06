@@ -56,6 +56,9 @@ from Amazon S3, you will need to install the
 $ pear install Services_Amazon_S3
 ```
 
+This dependency is not included by Composer, as we will likely remove it in the
+future (and PEAR is very slow over Composer).
+
 ##Avaiable tasksets
 
 Phingy ships with a set of base tasks and some platform specific tasks that you can use in your project. Use `$ bin/phing -l` to see what's available, but a brief overview is as follows:
