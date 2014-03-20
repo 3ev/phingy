@@ -28,8 +28,8 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
         "3ev/phingy": "~0.5"
     },
     "scripts": {
-        "post-package-install": [
-            "Ev\\Phingy\\ComposerScripts::postPackageInstall"
+        "post-install-cmd": [
+            "Ev\\Phingy\\ComposerScripts::postInstall"
         ]
     },
     "config": {
