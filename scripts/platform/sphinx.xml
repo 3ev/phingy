@@ -69,15 +69,7 @@
             <available file="${build.path}/config/sphinx.conf" property="sphinx_config_exists" />
             <then>
                 <echo message="Sphinx config found, symlinking..." />
-                <if>
-                    <available file="${share.path}/sphinx/${build.name}.include" property="sphinx_already_symlinked" />
-                    <then>
-                        <echo message="File already symlinked." />
-                    </then>
-                    <else>
-                        <symlink target="${build.path}/config/sphinx.conf" link="${share.path}/sphinx/${build.name}.include" />
-                    </else>
-                </if>
+                <exec command="ln -sf ${build.path}/config/sphinx.conf ${share.path}/sphinx/${build.name}.include" />
                 <echo message="...done." />
             </then>
             <else>
