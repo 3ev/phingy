@@ -212,7 +212,7 @@
         Populate the database
     -->
 
-    <target name="db:data:load" depends="db:config, db:data:empty" description="Empty the database and reload from data/db/data.sql">
+    <target name="db:data:load" depends="db:config, db:empty" description="Empty the database and reload from data/db/data.sql">
         <exec command="mysql -u${db.user} -p${db.pass} -h${db.host} ${db.name} &lt; ${db.data_path}/data.sql" escape="false" />
     </target>
 
