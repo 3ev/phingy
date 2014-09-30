@@ -203,9 +203,9 @@
         Empty the database
     -->
 
-    <target name="db:data:empty" depends="db:config" description="Truncate all tables">
+    <target name="db:empty" depends="db:config" description="Truncate all tables">
         <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}">
-            SELECT CONCAT('TRUNCATE TABLE ',table_name, ';') FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE();
+            SELECT CONCAT('SET FOREIGN_KEY_CHECKS = 0;TRUNCATE TABLE ',table_name, ';SET FOREIGN_KEY_CHECKS = 1;') FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE();
             <formatter type="plain" outfile="${db.data_path}/truncate.sql" showheaders="false" coldelim="" />
         </pdosqlexec>
 
