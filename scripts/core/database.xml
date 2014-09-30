@@ -169,8 +169,8 @@
     <target name="db:create" depends="db:config, db:drop" description="Create the database including privileges">
         <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
             CREATE DATABASE IF NOT EXISTS ${db.name} CHARACTER SET utf8;
-            GRANT all ON ${db.name}.* TO '${db.name}'@'${db.host}' IDENTIFIED BY '${db.name}';
-            GRANT all ON ${db.name}.* TO '${db.name}'@'%' IDENTIFIED BY '${db.name}';
+            GRANT all ON ${db.name}.* TO '${db.user}'@'${db.host}' IDENTIFIED BY '${db.pass}';
+            GRANT all ON ${db.name}.* TO '${db.user}'@'%' IDENTIFIED BY '${db.pass}';
             FLUSH PRIVILEGES;
         </pdosqlexec>
 
