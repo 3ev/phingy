@@ -133,14 +133,14 @@
     <target name="build:server" description="Symlink site into sites-enabled AND restart Apache">
         <echo message="Finding config file for current environment..." />
         <if>
-            <available file="${build.path}/config/httpd.${build.environment}.include" />
+            <available file="${build.path}/config/httpd.${build.environment}.conf" />
             <then>
                 <echo message="Found config for [${build.environment}] environment." />
-                <property name="build.server_config" value="${build.path}/config/httpd.${build.environment}.include" />
+                <property name="build.server_config" value="${build.path}/config/httpd.${build.environment}.conf" />
             </then>
             <else>
                 <echo message="Did not find config for [${build.environment}] environment, using default." />
-                <property name="build.server_config" value="${build.path}/config/httpd.include" />
+                <property name="build.server_config" value="${build.path}/config/httpd.conf" />
             </else>
         </if>
         <echo message="...done." />
@@ -149,7 +149,7 @@
             <os family="mac" />
             <then>
                 <echo message="On OSX, symlinking to /etc/apache2/vhosts..." />
-                <exec command="sudo ln -sf ${build.server_config} /etc/apache2/vhosts/${build.name}.include" />
+                <exec command="sudo ln -sf ${build.server_config} /etc/apache2/vhosts/${build.name}.conf" />
                 <echo message="...done." />
                 <echo message="Reloading Apache config..." />
                 <exec command="sudo apachectl reload" />
@@ -157,7 +157,7 @@
             </then>
             <else>
                 <echo message="On Linux, symlinking to /etc/apache2/sites-enabled..." />
-                <exec command="sudo ln -sf ${build.server_config} /etc/apache2/sites-enabled/${build.name}.include" />
+                <exec command="sudo ln -sf ${build.server_config} /etc/apache2/sites-enabled/${build.name}.conf" />
                 <echo message="...done." />
                 <echo message="Reloading Apache config..." />
                 <exec command="sudo service apache2 reload" />
