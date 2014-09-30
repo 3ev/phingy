@@ -5,18 +5,6 @@
 
 
     <!-- ==================================== -->
-    <!--             Dependencies             -->
-    <!-- ==================================== -->
-
-
-
-
-    <import file="${phingy.path}/scripts/core/database.xml" />
-
-
-
-
-    <!-- ==================================== -->
     <!--              Properties              -->
     <!-- ==================================== -->
 
@@ -24,6 +12,18 @@
 
 
     <property name="build.library_dir" value="${build.path}/library" />
+
+
+
+
+    <!-- ==================================== -->
+    <!--             Dependencies             -->
+    <!-- ==================================== -->
+
+
+
+
+    <import file="${phingy.path}/scripts/core/database.xml" />
 
 
 

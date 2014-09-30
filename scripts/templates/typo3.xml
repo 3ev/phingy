@@ -5,19 +5,6 @@
 
 
     <!-- ==================================== -->
-    <!--             Dependencies             -->
-    <!-- ==================================== -->
-
-
-
-
-    <import file="${phingy.path}/scripts/platform/typo3.xml" />
-    <import file="${phingy.path}/scripts/platform/sphinx.xml" />
-
-
-
-
-    <!-- ==================================== -->
     <!--              Properties              -->
     <!-- ==================================== -->
 
@@ -29,6 +16,19 @@
     -->
 
     <property name="site_assets_ext" value="tev_site" />
+
+
+
+
+    <!-- ==================================== -->
+    <!--             Dependencies             -->
+    <!-- ==================================== -->
+
+
+
+
+    <import file="${phingy.path}/scripts/platform/typo3.xml" />
+    <import file="${phingy.path}/scripts/platform/sphinx.xml" />
 
 
 
