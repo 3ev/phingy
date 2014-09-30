@@ -1,6 +1,6 @@
 #Phingy
 
-Current version: `0.7.5`
+Current version: `0.8.0`
 
 Phingy is a small collection of build scripts which you can mix together differently depending on your project. To use these scripts, you include the required ones in your build script starting with your own project.xml.
 
@@ -25,7 +25,7 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
         }
     ],
     "require": {
-        "3ev/phingy": "~0.7"
+        "3ev/phingy": "~0.8"
     },
     "scripts": {
         "post-install-cmd": [
@@ -37,8 +37,6 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
     }
 }
 ```
-
-As Phingy is a private Github repo, you will be prompted for your username and password the first time you install it on a project.
 
 ###Phing
 
@@ -127,7 +125,6 @@ When deploying to production, you should still be able to use `bin/phing build`.
 
 ```
 typo3:build:after This will update the database, but only in development
-build:server      This will only be run in development
 ```
 
 Refer to these tasks to see how you can achieve this yourself.
