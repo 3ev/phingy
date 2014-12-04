@@ -29,7 +29,7 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
     },
     "scripts": {
         "post-install-cmd": [
-            "Ev\\Phingy\\ComposerScripts::postInstall"
+            "Tev\\Phingy\\ComposerScripts::postInstall"
         ]
     },
     "config": {
