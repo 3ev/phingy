@@ -18,12 +18,6 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
 
 ```json
 {
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/3ev/phingy"
-        }
-    ],
     "require": {
         "3ev/phingy": "~0.8"
     },
