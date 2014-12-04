@@ -1,6 +1,6 @@
 #Phingy
 
-Current version: `0.8.1`
+Current version: `0.9.0`
 
 Phingy is a small collection of build scripts which you can mix together differently depending on your project. To use these scripts, you include the required ones in your build script starting with your own project.xml.
 
@@ -25,7 +25,7 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
         }
     ],
     "require": {
-        "3ev/phingy": "~0.8"
+        "3ev/phingy": "~0.9"
     },
     "scripts": {
         "post-install-cmd": [
