@@ -18,8 +18,8 @@
     },
 
     "autoload": {
-        "psr-0": {
-            "Ev\\Phingy": "src/"
+        "psr-4": {
+            "Tev\\": "src/Tev"
         }
     },
 

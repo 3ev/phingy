@@ -1,12 +1,13 @@
-<?php namespace Ev\Phingy;
+<?php
+namespace Tev\Phingy;
 
 use Composer\Script\Event;
 
 /**
  * Installation scripts.
  */
-class ComposerScripts {
-
+class ComposerScripts
+{
     /**
      * @var array $templates Array of available project templates
      */
