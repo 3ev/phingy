@@ -33,6 +33,13 @@ class WatchTask extends Task
     private $bundler = false;
 
     /**
+     * Space separated load paths.
+     *
+     * @var string
+     */
+    private $loadPaths;
+
+    /**
      * Init method.
      *
      * @return void
@@ -73,6 +80,19 @@ class WatchTask extends Task
     }
 
     /**
+     * Set additional load paths.
+     *
+     * Space separated.
+     *
+     * @param  string $loadPaths Space-separated load paths
+     * @return void
+     */
+    public function setLoadPaths($loadPaths)
+    {
+        $this->loadPaths = $loadPaths;
+    }
+
+    /**
      * The main entry point method.
      *
      * @return void
@@ -82,7 +102,13 @@ class WatchTask extends Task
         $return = null;
 
         $cmd  = $this->bundler ? 'bundle exec ' : '';
-        $cmd .= 'sass --watch ';
+        $cmd .= 'sass ';
+        foreach (explode(' ', trim($this->loadPaths)) as $path) {
+            if (strlen($path)) {
+                $cmd .= "--load-path $path ";
+            }
+        }
+        $cmd .= '--watch ';
         $cmd .= escapeshellarg($this->watch) . ':' . escapeshellarg($this->out) . ' ';
         $cmd .= '--style expanded ';
         $cmd .= '--sourcemap=none';

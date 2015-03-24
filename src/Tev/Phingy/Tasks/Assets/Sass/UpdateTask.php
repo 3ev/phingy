@@ -32,11 +32,21 @@ class UpdateTask extends Task
     private $bundler = false;
 
     /**
+     * Space separated load paths.
+     *
+     * @var string
+     */
+    private $loadPaths;
+
+    /**
      * Init method.
      *
      * @return void
      */
-    public function init() {}
+    public function init()
+    {
+        $this->loadPaths = '';
+    }
 
     /**
      * Set the SASS file to compile from.
@@ -72,6 +82,19 @@ class UpdateTask extends Task
     }
 
     /**
+     * Set additional load paths.
+     *
+     * Space separated.
+     *
+     * @param s tring $loadPaths Space-separated load paths
+     * @return void
+     */
+    public function setLoadPaths($loadPaths)
+    {
+        $this->loadPaths = $loadPaths;
+    }
+
+    /**
      * The main entry point method.
      *
      * @return void
@@ -81,7 +104,13 @@ class UpdateTask extends Task
         $return = null;
 
         $cmd  = $this->bundler ? 'bundle exec ' : '';
-        $cmd .= 'sass --update ';
+        $cmd .= 'sass ';
+        foreach (explode(' ', trim($this->loadPaths)) as $path) {
+            if (strlen($path)) {
+                $cmd .= "--load-path $path ";
+            }
+        }
+        $cmd .= '--update ';
         $cmd .= escapeshellarg($this->in) . ':' . escapeshellarg($this->out) . ' ';
         $cmd .= '--style compressed ';
         $cmd .= '--force ';
