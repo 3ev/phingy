@@ -66,8 +66,9 @@ Database specific functionality. Each platform will include this as a dependency
 Typo3 specific tasks (includes [db](https://github.com/3ev/phingy/blob/master/scripts/core/database.xml)). Will set up Typo3 on build, and provides some utility methods.
 - [sphinx](https://github.com/3ev/phingy/blob/master/scripts/platform/sphinx.xml)
 Sphinx specific tasks. Provides tasks to index Sphinx data for the project.
-- [wordpress](https://github.com/3ev/phingy/blob/master/scripts/platform/wordress.xml)
-Not yet implemented.
+- [laravel](https://github.com/3ev/phingy/blob/master/scripts/platform/laravel.xml)
+Laravel specific tasks. Provides task to work with the Laravel framework
+
 
 ##Setting up your project with Platforms
 

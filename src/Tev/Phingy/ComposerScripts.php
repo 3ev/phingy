@@ -13,7 +13,8 @@ class ComposerScripts
      */
     private static $templates = array(
         'default',
-        'typo3'
+        'typo3',
+        'laravel'
     );
 
     /**
