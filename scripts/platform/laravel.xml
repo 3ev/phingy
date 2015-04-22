@@ -52,7 +52,7 @@
         Configure a Laravel application.
     -->
 
-    <target name="build:config" description="Configure Laravel app">
+    <target name="build:config" hidden="true">
         <echo msg="Configuring Laravel app..." />
 
         <if>
