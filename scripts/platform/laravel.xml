@@ -28,6 +28,12 @@
 
     <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask" />
 
+    <!-- Laravel property values -->
+
+    <property name="APP_ENV" value="development" />
+    <property name="APP_CACHING" value="0" />
+    <property name="APP_DEBUG" value="1" />
+
 
 
 
@@ -70,22 +76,6 @@
 
         <if>
             <not>
-                <isset property="APP_ENV" />
-            </not>
-            <then>
-                <propertyPrompt
-                    propertyName="APP_ENV"
-                    defaultValue="development"
-                    promptText="Environment"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
                 <isset property="APP_URL" />
             </not>
             <then>
@@ -93,38 +83,6 @@
                     propertyName="APP_URL"
                     defaultValue="${build.name}.3ev.in"
                     promptText="Build URL"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
-                <isset property="APP_CACHING" />
-            </not>
-            <then>
-                <propertyPrompt
-                    propertyName="APP_CACHING"
-                    defaultValue=""
-                    promptText="Enable caching? (1,0)"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
-                <isset property="APP_DEBUG" />
-            </not>
-            <then>
-                <propertyPrompt
-                    propertyName="APP_DEBUG"
-                    defaultValue="1"
-                    promptText="Enable debug mode? (1,0)"
                     useExistingValue="true"
                 />
 
@@ -250,8 +208,6 @@
 
     <target name="laravel:build:housekeeping" hidden="true">
         <exec command="php artisan cache:clear --ansi" passthru="true" />
-        <exec command="php artisan route:cache --ansi" passthru="true" />
-        <exec command="php artisan config:cache --ansi" passthru="true" />
         <exec command="php artisan optimize --ansi" passthru="true" />
     </target>
 
