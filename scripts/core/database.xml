@@ -223,7 +223,7 @@
 
     <target name="db:data:dump" depends="db:config" description="Dump DB structure into data/db/data.sql">
         <echo msg="MySQL dump data into ${db.data_path}/data.sql" />
-        <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/data.sql" />
+        <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${db.user} -p${db.pass} -h${db.host} ${db.name} > ${db.data_path}/data.sql" />
     </target>
 
 
@@ -233,7 +233,7 @@
 
     <target name="db:structure:dump" depends="db:config" description="Dump DB structure into data/db/create.sql">
         <echo msg="MySQL dump structure into ${db.data_path}/create.sql" />
-        <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.user} -h${db.host} ${db.name} > ${db.data_path}/create.sql" />
+        <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.pass} -h${db.host} ${db.name} > ${db.data_path}/create.sql" />
     </target>
 
 
