@@ -329,6 +329,30 @@
     </target>
 
 
+    <!--
+        Download latest database from S3, and load
+    -->
+
+    <target name="db:update" depends="db:config" description="Download latest database from S3, and load">
+        <phingcall target="db:structure:update" />
+        <phingcall target="db:data:update" />
+        <phingcall target="db:structure:load" />
+        <phingcall target="db:data:load" />
+    </target>
+
+
+    <!--
+        Dump the current database and push to S3
+    -->
+
+    <target name="db:commit" depends="db:config" description="Dump the current database and push to S3">
+        <phingcall target="db:structure:dump" />
+        <phingcall target="db:data:dump" />
+        <phingcall target="db:structure:commit" />
+        <phingcall target="db:data:commit" />
+    </target>
+
+
 
 
 </project>
