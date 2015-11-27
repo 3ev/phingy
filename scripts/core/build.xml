@@ -183,14 +183,6 @@
         <phingcall target="project:build:before" />
         <phingcall target="build:skel" />
         <phingcall target="project:build:after" />
-
-        <if>
-            <equals arg1="${build.environment}" arg2="production" />
-            <then>
-                <echo message="In production, setting server config..." />
-                <phingcall target="build:server" />
-            </then>
-        </if>
     </target>
 
 
