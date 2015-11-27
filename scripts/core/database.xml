@@ -17,7 +17,7 @@
 
     <!-- Base property values -->
 
-    <property name="db.data_path" value="${build.path}/data/db" />
+    <property name="db.data_path" value="${build.path}/storage/database" />
     <property name="amazon.key" value="${s3.key}" />
     <property name="amazon.secret" value="${s3.secret}" />
 
