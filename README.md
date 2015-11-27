@@ -4,7 +4,7 @@ Phingy is a small collection of build scripts which you can mix together differe
 depending on your project. To use these scripts, you include the required ones in
 your build script starting with your own project.xml.
 
-##Installation & dependencies
+###Installation & dependencies
 
 Phingy is installed via [Composer](http://getcomposer.org/). Add the following to
 your project's `composer.json` and run `composer install`:
@@ -34,7 +34,7 @@ $ bin/phing
 ###'Skel' files
 
 Phingy will automatically generate files from `.skel` files anywhere in your project.
-These files can include Phing properties which will be replace with their actual
+These files can include Phing properties which will be replaced with their actual
 values at compile time.
 
 You may for example want to create an Apache vhost config file for your project,
@@ -96,7 +96,7 @@ Sphinx specific tasks. Provides tasks to index Sphinx data for the project.
 - [laravel](https://github.com/3ev/phingy/blob/master/scripts/platform/laravel.xml)
 Laravel specific tasks. Provides task to work with the Laravel framework
 
-##Setting up your project with Platforms
+###Setting up your project with Platforms
 
 When you run `composer install`, you will be prompted to pick a template to use
 for your project. Selecting a template will create a file called `project.xml` in
@@ -130,7 +130,7 @@ and then call each of its hooks in your project-specific hooks:
 **Note:** If you pick a non-default template (like 'typo3'), all of this will be
 handled for you.
 
-##Adding your own project specific tasks and config
+###Adding your own project specific tasks and config
 
 You can add any of your own tasks in `config/project.xml`. These should be namespaced
 with `project:` for convention. You can either add standalone tasks, or call them
