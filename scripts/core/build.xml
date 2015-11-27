@@ -78,8 +78,8 @@
             <then>
                 <propertyPrompt
                     propertyName="build.environment"
-                    defaultValue="development"
-                    promptText="Environment"
+                    defaultValue="Development"
+                    promptText="Environment (Development/Production)"
                     useExistingValue="true"
                 />
 
