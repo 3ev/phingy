@@ -94,7 +94,7 @@
             <then>
                 <propertyPrompt
                     propertyName="build.url"
-                    defaultValue="${build.name}.3ev.in"
+                    defaultValue="${build.name}.dev"
                     promptText="Build URL"
                     useExistingValue="true"
                 />
