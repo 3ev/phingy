@@ -17,7 +17,7 @@ Phingy is installed via [Composer](http://getcomposer.org/). Add the following t
 ```json
 {
     "require": {
-        "3ev/phingy": "~0.9"
+        "3ev/phingy": "~0.13"
     },
     "scripts": {
         "post-install-cmd": [
@@ -45,9 +45,6 @@ from Amazon S3, you will need to install the
 ```sh
 $ pear install Services_Amazon_S3
 ```
-
-This dependency is not included by Composer, as we will likely remove it in the
-future (and PEAR is very slow over Composer).
 
 ##Avaiable tasksets
 
