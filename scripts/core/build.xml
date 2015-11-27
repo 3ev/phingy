@@ -29,7 +29,6 @@
 
     <!-- Configure default property values -->
 
-    <property name="share.path" value="/share" />
     <property name="build.name" value="${build.basename}" />
     <property name="build.public_dir" value="${build.path}/htdocs" />
     <property name="build.log_dir" value="${build.path}/logs" />

@@ -11,6 +11,7 @@
 
 
 
+    <property name="share.path" value="/share" />
     <property name="sphinx.index_dir" value="${build.path}/data/sphinx/xmlpipe" />
 
 
