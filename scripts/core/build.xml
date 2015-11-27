@@ -31,7 +31,7 @@
 
     <property name="build.name" value="${build.basename}" />
     <property name="build.public_dir" value="${build.path}/htdocs" />
-    <property name="build.log_dir" value="${build.path}/logs" />
+    <property name="build.log_dir" value="${build.path}/storage/logs" />
 
     <!-- Include configuration -->
 

@@ -20,7 +20,6 @@
     <property name="paths.properties" value="${build.path}/.env" />
     <property name="db.data_path" value="${build.path}/database" />
     <property name="build.public_dir" value="${build.path}/public" />
-    <property name="build.log_dir" value="${build.path}/storage/logs" />
     <property name="amazon.key" value="${s3.key}" />
     <property name="amazon.secret" value="${s3.secret}" />
 
