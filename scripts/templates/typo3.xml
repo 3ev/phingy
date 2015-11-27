@@ -11,11 +11,7 @@
 
 
 
-    <!--
-        Name of the extension that contains the site assets to compile
-    -->
-
-    <property name="site_assets_ext" value="tev_site" />
+    <!-- Add properties here -->
 
 
 
@@ -27,8 +23,8 @@
 
 
 
+    <import file="${phingy.path}/scripts/core/database.xml" />
     <import file="${phingy.path}/scripts/platform/typo3.xml" />
-    <import file="${phingy.path}/scripts/platform/sphinx.xml" />
 
 
 
@@ -40,7 +36,7 @@
 
 
 
-    <target name="project:config" depends="build:config, typo3:config, sphinx:config" hidden="true">
+    <target name="project:config" depends="build:config, db:config" hidden="true">
         <echo msg="Running project:config" />
     </target>
 
@@ -48,26 +44,27 @@
     <target name="project:build:before" hidden="true">
         <echo msg="Running project:build:before" />
         <phingcall target="typo3:build:before" />
-        <phingcall target="sphinx:build:before" />
     </target>
 
 
     <target name="project:build:after" hidden="true">
         <echo msg="Running project:build:after" />
         <phingcall target="typo3:build:after" />
-        <phingcall target="sphinx:build:after" />
     </target>
 
 
     <target name="project:build:housekeeping" hidden="true">
         <echo msg="Running project:build:housekeeping" />
         <phingcall target="typo3:build:housekeeping" />
-        <phingcall target="sphinx:build:housekeeping" />
     </target>
 
 
-    <target name="project:typo3:cache:clear_all" hidden="true">
+    <target name="typo3:set:domain" description="Sets the TYPO3 sys domain based on the build config" depends="build:config, db:config">
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}">
+            UPDATE sys_domain SET domainName = '${build.url}';
+        </pdosqlexec>
     </target>
+
 
 
 

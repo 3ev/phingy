@@ -11,19 +11,7 @@
 
 
 
-    <property name="build.library_dir" value="${build.path}/library" />
-
-
-
-
-    <!-- ==================================== -->
-    <!--             Dependencies             -->
-    <!-- ==================================== -->
-
-
-
-
-    <import file="${phingy.path}/scripts/core/database.xml" />
+    <!-- Add properties here -->
 
 
 
@@ -36,80 +24,36 @@
 
 
     <!--
-        Setup TYPO3 specific config.
-    -->
-
-    <target name="typo3:config" depends="db:config" hidden="true">
-        <echo message="No TYPO3 config required" />
-    </target>
-
-
-    <!--
-        Sets up the directories and permissions required by TYPO3.
-        Symlinks TYPO3 into this environment.
+        Before build TYPO3 hook.
     -->
 
     <target name="typo3:build:before" hidden="true">
-        <mkdir dir="${build.public_dir}/typo3temp" />
-        <mkdir dir="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" />
-
-        <chmod file="${build.public_dir}/uploads" mode="0775" />
-        <chmod file="${build.public_dir}/typo3temp" mode="0777" />
-        <chmod file="${build.public_dir}/typo3temp/Cache" mode="0777" />
-        <chmod file="${build.public_dir}/typo3temp/Cache/Code" mode="0777" />
-        <chmod file="${build.public_dir}/typo3temp/Cache/Code/cache_phpcode" mode="0777" />
-        <chmod file="${build.public_dir}/typo3conf" mode="0777" />
-        <chmod file="${build.public_dir}/typo3conf/ext" mode="0777" />
+        <echo msg="Running typo3:build:before" />
     </target>
 
 
     <!--
-        After build. Creates database and caches routes.
+        After build TYPO3 hook.
     -->
 
     <target name="typo3:build:after" hidden="true">
-        <if>
-            <equals arg1="${build.environment}" arg2="development" />
-            <then>
-                <if>
-                    <available file="${build.public_dir}/typo3conf/FIRST_INSTALL" />
-                    <then>
-                        <echo msg="Development mode and first install, creating database" />
-                        <phingcall target="db:create" />
-                    </then>
-                    <else>
-                        <echo msg="Development mode, updating database" />
-                        <phingcall target="db:update" />
-                    </else>
-                </if>
-            </then>
-            <else>
-                <echo msg="Production mode, not updating database" />
-            </else>
-        </if>
+        <echo msg="Running typo3:build:after" />
 
-        <phingcall target="typo3:cache:routes" />
+        <!-- Create dirs -->
 
-        <if>
-            <equals arg1="${build.environment}" arg2="production" />
-            <then>
-                <echo msg="Production mode, compiling assets" />
-                <phingcall target="typo3:compile:all" />
-            </then>
-            <else>
-                <echo msg="Development mode, compiling initial SASS files" />
-                <phingcall target="typo3:compile:css" />
-            </else>
-        </if>
+        <mkdir dir="${build.public_dir}/typo3temp" />
+        <chmod file="${build.public_dir}/typo3temp" mode="0775" />
+        <chmod file="${build.public_dir}/typo3conf" mode="0775" />
+        <chmod file="${build.public_dir}/typo3conf/ext" mode="0775" />
     </target>
 
 
     <!--
-        Housekeeping. Nothing here yet.
+        Housekeeping TYPO3 task.
     -->
 
     <target name="typo3:build:housekeeping" hidden="true">
-        <echo message="Not used" />
+        <echo msg="Running typo3:build:housekeeping" />
     </target>
 
 
@@ -128,121 +72,6 @@
 
     <target name="typo3:install_tool:disable" description="Removes the ENABLE_INSTALL_TOOL file">
         <delete file="${build.public_dir}/typo3conf/ENABLE_INSTALL_TOOL" />
-    </target>
-
-
-    <!--
-        Cache MCA routes so Zend works inside TYPO3.
-    -->
-
-    <target name="typo3:cache:routes" description="Cache MCA routes">
-        <if>
-            <available file="${build.public_dir}/typo3conf/ext/zend_fe" type="dir" />
-            <then>
-                <exec command="htdocs/typo3/cli_dispatch.phpsh tx_zendfe_cacheroutes" escape="false" passthru="true" />
-            </then>
-            <else>
-                <echo msg="Zend FE not installed, not caching routes" />
-            </else>
-        </if>
-    </target>
-
-
-    <!--
-        Clear all Typo3 caches
-    -->
-
-    <target name="typo3:cache:clear_all" description="Completely clear TYPO3 temp and routing caches">
-        <exec command="sudo rm htdocs/typo3temp/*" escape="false" />
-        <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
-        <phingcall target="project:typo3:cache:clear_all" />
-    </target>
-
-
-    <!--
-        Clear cached config
-    -->
-
-    <target name="typo3:cache:clear_config" description="Clear cached TYPO3 config">
-        <exec command="sudo rm htdocs/typo3conf/Cache/Code/cache_core/ext_*" escape="false" />
-        <exec command="sudo rm htdocs/typo3conf/Cache/Code/cache_core/tca_*" escape="false" />
-        <exec command="sudo rm htdocs/typo3temp/config_cache*" escape="false" />
-    </target>
-
-
-    <!--
-        Clear cached routing
-    -->
-
-    <target name="typo3:cache:clear_routes" description="Clear cached TYPO3 routing">
-        <exec command="sudo rm htdocs/typo3conf/realurl_autoconf.php" escape="false" />
-        <exec command="sudo rm htdocs/typo3temp/routes.ini" escape="false" />
-    </target>
-
-
-    <!--
-        Compile all site static assets.
-    -->
-
-    <target name="typo3:compile:all" description="Compile all site static assets">
-        <if>
-            <isset property="site_assets_ext" />
-            <then>
-                <phingcall target="typo3:compile:javascript" />
-                <phingcall target="typo3:compile:css" />
-            </then>
-            <else>
-                <echo msg="'site_assets_ext' is not set, assets not compiled" level="warning" />
-            </else>
-        </if>
-    </target>
-
-
-    <!--
-        Compile site JavaScript
-    -->
-
-    <target name="typo3:compile:javascript" description="Compile Require.js files">
-        <echo msg="Compiling JavaScript for the '${site_assets_ext}' extension..." />
-        <exec command="node htdocs/typo3conf/ext/tev_boilerplate/Resources/Public/js/r.js -o htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/js/build.js" escape="false" passthru="true" />
-        <echo msg="...complete" />
-    </target>
-
-
-    <!--
-        Compile site CSS
-    -->
-
-    <target name="typo3:compile:css" description="Compile SASS files">
-        <echo msg="Compiling SASS for the '${site_assets_ext}' extension..." />
-
-        <phingcall target="typo3:sass:create_output_dir" />
-
-        <!-- Compile -->
-        <exec command="sass htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/sass/style.scss htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css/style.css --style compressed" escape="false" passthru="true" />
-
-        <echo msg="...complete" />
-    </target>
-
-
-    <!--
-        Watch site SASS files in development
-    -->
-
-    <target name="typo3:sass:watch" description="Watch SASS files in development">
-        <phingcall target="typo3:sass:create_output_dir" />
-        <exec command="sass -gl --watch htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/sass/style.scss:htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css/style.css --style expanded" escape="false" passthru="true" />
-    </target>
-
-
-    <!--
-        Create compiled SASS directory
-    -->
-
-    <target name="typo3:sass:create_output_dir" hidden="true" description="Create compiled SASS directory">
-        <mkdir dir="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled" />
-        <mkdir dir="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css" />
-        <chmod file="htdocs/typo3conf/ext/${site_assets_ext}/Resources/Public/compiled/css" mode="0775" />
     </target>
 
 
