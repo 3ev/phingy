@@ -35,7 +35,7 @@
 
 
 
-    <target name="project:config" description="Configure application" depends="laravel:config">
+    <target name="project:config" description="Configure application" depends="build:config">
         <echo msg="Running project:config" />
         <phingcall target="build:save_config" />
     </target>
