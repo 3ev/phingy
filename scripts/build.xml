@@ -6,16 +6,6 @@
 
 
     <!-- ==================================== -->
-    <!--              Taskdefs                -->
-    <!-- ==================================== -->
-
-
-
-    <taskdef name="phingy:assets:wordpress:addsalt" classname="Tev\Phingy\Tasks\Wordpress\GenerateSaltTask" />
-
-
-
-    <!-- ==================================== -->
     <!--            Core Imports              -->
     <!-- ==================================== -->
 
