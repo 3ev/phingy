@@ -12,11 +12,6 @@
 
 
     <taskdef name="phingy:assets:wordpress:addsalt" classname="Tev\Phingy\Tasks\Wordpress\GenerateSaltTask" />
-    <taskdef name="phingy:assets:sass:update" classname="Tev\Phingy\Tasks\Assets\Sass\UpdateTask" />
-    <taskdef name="phingy:assets:sass:watch" classname="Tev\Phingy\Tasks\Assets\Sass\WatchTask" />
-    <taskdef name="phingy:assets:browserify" classname="Tev\Phingy\Tasks\Assets\BrowserifyTask" />
-    <taskdef name="phingy:assets:watchify" classname="Tev\Phingy\Tasks\Assets\WatchifyTask" />
-    <taskdef name="phingy:assets:uglifyjs" classname="Tev\Phingy\Tasks\Assets\UglifyJsTask" />
 
 
 
