@@ -109,7 +109,7 @@
         Applies configuration to skel files
     -->
 
-    <target name="build:skel" depends="project:config" description="Applies configuration to skel files">
+    <target name="build:skel" description="Applies configuration to skel files">
         <echo msg="Skel files..." />
 
         <copy todir="" overwrite="true">
