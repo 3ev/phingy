@@ -12,7 +12,7 @@ your project's `composer.json` and run `composer install`:
 ```json
 {
     "require": {
-        "3ev/phingy": "~1.0"
+        "3ev/phingy": "~4.0"
     },
     "scripts": {
         "post-install-cmd": [
@@ -94,7 +94,7 @@ Typo3 specific tasks (includes [db](https://github.com/3ev/phingy/blob/master/sc
 - [sphinx](https://github.com/3ev/phingy/blob/master/scripts/platform/sphinx.xml)
 Sphinx specific tasks. Provides tasks to index Sphinx data for the project.
 - [laravel](https://github.com/3ev/phingy/blob/master/scripts/platform/laravel.xml)
-Laravel specific tasks. Provides task to work with the Laravel framework
+Laravel specific tasks. Provides tasks to work with the Laravel framework
 
 ###Setting up your project with Platforms
 
