@@ -19,19 +19,12 @@
 
     <property name="paths.properties" value="${build.path}/.env" />
     <property name="db.data_path" value="${build.path}/database" />
-    <property name="build.public_dir" value="${build.path}/public" />
     <property name="amazon.key" value="${s3.key}" />
     <property name="amazon.secret" value="${s3.secret}" />
 
     <!-- Load the PDOSQLEXEC task -->
 
     <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask" />
-
-    <!-- Laravel property values -->
-
-    <property name="APP_ENV" value="development" />
-    <property name="APP_CACHING" value="0" />
-    <property name="APP_DEBUG" value="1" />
 
 
 
@@ -42,172 +35,32 @@
 
 
 
-    <target name="build:save_config" hidden="true">
-        <echo message="Property updated, saving..." />
-        <exportproperties
-            targetfile="${paths.properties}"
-            disallowedPropertyPrefixes="host.,phing.,os.,php.,line.,env.,user.,build.,db.,application.,project.,phingy.,paths.,amazon.,s3.,share.,hasPropertiesFile"
-        />
-        <echo message="...done" />
-    </target>
-
-
 
     <!--
-        Configure a Laravel application.
+        These tasks aren't used in Laravel projects
     -->
+
+    <target name="build:save_config" hidden="true">
+        <echo msg="Not used in this project" />
+    </target>
+
 
     <target name="build:config" hidden="true">
-        <echo msg="Configuring Laravel app..." />
+        <echo msg="Not used in this project" />
+    </target>
 
-        <if>
-            <and>
-                <isset property="s3.key" />
-                <isset property="s3.secret" />
-                <isset property="amazon.key" />
-                <isset property="amazon.secret" />
-            </and>
-            <then></then>
-            <else>
-                <fail message="S3 keys not set - please set in project.properties" />
-            </else>
-        </if>
-
-        <if>
-            <not>
-                <isset property="APP_URL" />
-            </not>
-            <then>
-                <propertyPrompt
-                    propertyName="APP_URL"
-                    defaultValue="${build.name}.3ev.in"
-                    promptText="Build URL"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
-                <isset property="DB_HOST" />
-            </not>
-            <then>
-                <propertyPrompt
-                    propertyName="DB_HOST"
-                    defaultValue="localhost"
-                    promptText="MySQL Host"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
-                <isset property="DB_NAME" />
-            </not>
-            <then>
-                <propertyprompt
-                    propertyName="DB_NAME"
-                    defaultValue="${build.basename}"
-                    promptText="MySQL DB Name"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
-                <isset property="DB_USER" />
-            </not>
-            <then>
-                <propertyprompt
-                    propertyName="DB_USER"
-                    defaultValue="${DB_NAME}"
-                    promptText="MySQL User"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
-                <isset property="DB_PASS" />
-            </not>
-            <then>
-                <propertyprompt
-                    propertyName="DB_PASS"
-                    defaultValue="${DB_USER}"
-                    promptText="MySQL Password"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
-                <isset property="DB_ROOT_USER" />
-            </not>
-            <then>
-                <propertyprompt
-                    propertyName="DB_ROOT_USER"
-                    defaultValue="root"
-                    promptText="MySQL root User"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
-
-        <if>
-            <not>
-                <isset property="DB_ROOT_PASS" />
-            </not>
-            <then>
-                <propertyprompt
-                    propertyName="DB_ROOT_PASS"
-                    defaultValue=""
-                    promptText="MySQL root Password"
-                    useExistingValue="true"
-                />
-
-                <phingcall target="build:save_config" />
-            </then>
-        </if>
+    <target name="project:config" hidden="true">
+        <echo msg="Not used in this project" />
     </target>
 
 
-    <target name="laravel:build:before" hidden="true">
-        <echo msg="Running laravel:build:before" />
+    <target name="build" hidden="true">
+        <echo msg="Not used in this project" />
     </target>
 
 
-    <!--
-        After build. Creates database and caches routes.
-    -->
-
-    <target name="laravel:build:after" hidden="true">
-        <echo msg="Running laravel:build:after" />
-    </target>
-
-
-    <!--
-        Housekeeping. Nothing here yet.
-    -->
-
-    <target name="laravel:build:housekeeping" hidden="true">
-        <exec command="php artisan cache:clear --ansi" passthru="true" />
-        <exec command="php artisan optimize --ansi" passthru="true" />
+    <target name="build:housekeeping" hidden="true">
+        <echo msg="Not used in this project" />
     </target>
 
 
@@ -215,9 +68,9 @@
         Drops the MySQL database
     -->
 
-    <target name="db:drop" depends="build:config" description="Drop the database">
-        <pdosqlexec url="mysql:host=${DB_HOST};" userid="${DB_ROOT_USER}" password="${DB_ROOT_PASS}">
-            DROP DATABASE if exists ${DB_NAME};
+    <target name="db:drop" description="Drop the database">
+        <pdosqlexec url="mysql:host=${DB_HOST};port=${DB_PORT};" userid="${DB_ROOT_USERNAME}" password="${DB_ROOT_PASSWORD}">
+            DROP DATABASE if exists ${DB_DATABASE};
         </pdosqlexec>
 
         <echo msg="Database dropped!" />
@@ -225,14 +78,13 @@
 
 
     <!--
-        Creates the MySQL database
+        Create the MySQL database and user, including privileges
     -->
 
-    <target name="db:create" depends="build:config, db:drop" description="Create the database including privileges">
-        <pdosqlexec url="mysql:host=${DB_HOST};" userid="${DB_ROOT_USER}" password="${DB_ROOT_PASS}">
-            CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8;
-            GRANT all ON ${DB_NAME}.* TO '${DB_USER}'@'${DB_HOST}' IDENTIFIED BY '${DB_PASS}';
-            GRANT all ON ${DB_NAME}.* TO '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+    <target name="db:create" depends="db:drop" description="Create the MySQL database and user, including privileges">
+        <pdosqlexec url="mysql:host=${DB_HOST};port=${DB_PORT};" userid="${DB_ROOT_USERNAME}" password="${DB_ROOT_PASSWORD}">
+            CREATE DATABASE IF NOT EXISTS ${DB_DATABASE} CHARACTER SET utf8;
+            GRANT all ON ${DB_DATABASE}.* TO '${DB_USERNAME}'@'${DB_HOST}' IDENTIFIED BY '${DB_PASSWORD}';
             FLUSH PRIVILEGES;
         </pdosqlexec>
 
@@ -241,37 +93,37 @@
 
 
     <!--
-        Clear out the database.
+        Clear out the MySQL database
     -->
 
-    <target name="db:data:empty" depends="build:config" description="Truncate all tables">
-        <pdosqlexec url="mysql:host=${DB_HOST};dbname=${DB_NAME}" userid="${DB_USER}" password="${DB_PASS}">
+    <target name="db:data:empty" description="Clear out the MySQL database">
+        <pdosqlexec url="mysql:host=${DB_HOST};dbname=${DB_DATABASE};port=${DB_PORT};" userid="${DB_USERNAME}" password="${DB_PASSWORD}">
             SELECT CONCAT('SET FOREIGN_KEY_CHECKS = 0;TRUNCATE TABLE ',table_name, ';SET FOREIGN_KEY_CHECKS = 1;') FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE();
             <formatter type="plain" outfile="${db.data_path}/truncate.sql" showheaders="false" coldelim="" />
         </pdosqlexec>
 
-        <pdosqlexec url="mysql:host=${DB_HOST};dbname=${DB_NAME}" userid="${DB_USER}" password="${DB_PASS}" src="${db.data_path}/truncate.sql" />
+        <pdosqlexec url="mysql:host=${DB_HOST};dbname=${DB_DATABASE};port=${DB_PORT};" userid="${DB_USERNAME}" password="${DB_PASSWORD}" src="${db.data_path}/truncate.sql" />
 
         <delete file="${db.data_path}/truncate.sql" />
     </target>
 
 
     <!--
-        Dump database data for current migration
+        Dump MySQL database data for the current migration
     -->
 
-    <target name="db:data:dump" depends="build:config, db:current_migration" description="Dump database data for current migration">
+    <target name="db:data:dump" depends="db:current_migration" description="Dump MySQL database data for the current migration">
         <echo msg="MySQL dump data into ${db.data_path}/${db.current_migration}_data.sql" />
 
-        <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${DB_USER} -p${DB_USER} -h${DB_HOST} ${DB_NAME} > ${db.data_path}/${db.current_migration}_data.sql" />
+        <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${DB_USERNAME} -p${DB_PASSWORD} -h${DB_HOST} -P${DB_PORT} ${DB_DATABASE} > ${db.data_path}/${db.current_migration}_data.sql" />
     </target>
 
 
     <!--
-        Upload data for current migration to S3
+        Upload MySQL database data for the current migration to S3
     -->
 
-    <target name="db:data:commit" depends="build:config, db:current_migration" description="Upload data for current migration to S3">
+    <target name="db:data:commit" depends="db:current_migration" description="Upload MySQL database data for the current migration to S3">
         <echo msg="Gzipping data..." />
         <exec command="gzip ${db.data_path}/${db.current_migration}_data.sql" />
         <echo msg="...done" />
@@ -291,19 +143,19 @@
 
 
     <!--
-        Empty the database and reload data for current migration
+        Empty MySQL database and reload data for the current migration
     -->
 
-    <target name="db:data:load" depends="build:config, db:data:empty, db:current_migration" description="Empty the database and reload data for current migration">
-        <exec command="mysql -u${DB_USER} -p${DB_PASS} -h${DB_HOST} ${DB_NAME} &lt; ${db.data_path}/${db.current_migration}_data.sql" escape="false" passthru="true" />
+    <target name="db:data:load" depends="db:data:empty, db:current_migration" description="Empty MySQL database and reload data for the current migration">
+        <exec command="mysql -u${DB_USERNAME} -p${DB_PASSWORD} -h${DB_HOST} -P${DB_PORT} ${DB_DATABASE} &lt; ${db.data_path}/${db.current_migration}_data.sql" escape="false" passthru="true" />
     </target>
 
 
     <!--
-        Download the data for current migration from S3
+        Download MySQL database data for the current migration from S3
     -->
 
-    <target name="db:data:update" depends="build:config, db:current_migration" description="Download the data for current migration from S3">
+    <target name="db:data:update" depends="db:current_migration" description="Download MySQL database data for the current migration from S3">
         <echo msg="Pulling data from: database.${project.name}.3ev.me..." />
         <s3get
             bucket="database.${project.name}.3ev.me"
@@ -326,14 +178,14 @@
         Show the current database migration
     -->
 
-    <target name="db:current_migration" description="Show the current Laravel database migration">
+    <target name="db:current_migration" description="Show the current database migration">
         <exec command="LARAVEL_CUR_MIGRATION=`ls -r ${db.data_path}/migrations | head -n1` &amp;&amp; echo ${LARAVEL_CUR_MIGRATION%.*}" escape="false" outputProperty="db.current_migration" />
         <echo message="${db.current_migration}" />
     </target>
 
 
     <!--
-        Run database migrations.
+        Run database migrations
     -->
 
     <target name="db:migrate" description="Run database migrations">
@@ -342,21 +194,10 @@
 
 
     <!--
-        Initialise the site database.
+        Initialise the MySQL database
     -->
 
-    <target name="db:init" depends="build:config, db:create, db:migrate, db:data:update, db:data:load" description="Setup the site database (structure and data)">
-    </target>
-
-
-    <!--
-        Override main build task.
-    -->
-
-    <target name="build" depends="project:config" description="Build the project">
-        <phingcall target="project:build:before" />
-        <phingcall target="build:skel" />
-        <phingcall target="project:build:after" />
+    <target name="db:init" depends="db:create, db:migrate, db:data:update, db:data:load" description="Initialise the MySQL database">
     </target>
 
 

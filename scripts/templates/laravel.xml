@@ -5,18 +5,6 @@
 
 
     <!-- ==================================== -->
-    <!--              Properties              -->
-    <!-- ==================================== -->
-
-
-
-
-    <!-- Set properties here -->
-
-
-
-
-    <!-- ==================================== -->
     <!--             Dependencies             -->
     <!-- ==================================== -->
 
@@ -24,36 +12,6 @@
 
 
     <import file="${phingy.path}/scripts/platform/laravel.xml" />
-
-
-
-
-    <!-- ==================================== -->
-    <!--                Tasks                 -->
-    <!-- ==================================== -->
-
-
-
-
-    <target name="project:config" description="Configure application" depends="build:config">
-        <echo msg="Running project:config" />
-        <phingcall target="build:save_config" />
-    </target>
-
-
-    <target name="project:build:before" depends="laravel:build:before" hidden="true">
-        <echo msg="Running project:build:before" />
-    </target>
-
-
-    <target name="project:build:after" depends="laravel:build:after" hidden="true">
-        <echo msg="Running project:build:after" />
-    </target>
-
-
-    <target name="project:build:housekeeping" depends="laravel:build:housekeeping" hidden="true">
-        <echo msg="Running project:build:housekeeping" />
-    </target>
 
 
 
