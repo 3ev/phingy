@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="" basedir="." default="...">
+    <!-- ==================================== -->
+    <!--              Properties              -->
+    <!-- ==================================== -->
+
+    <!-- Override memory limit -->
+    <php expression="ini_set('memory_limit', '-1');" level="verbose" />
+
+    <!-- Load the PDOSQLEXEC task -->
+    <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask" />
+
+
+    <!-- ==================================== -->
+    <!--                Tasks                 -->
+    <!-- ==================================== -->
+
+    <!--
+        Configure the database.
+        Call this in the platform config if it requires a database
+    -->
+    <target name="db:config" description="Configure database" hidden="true">
+        <echo msg="Configuring database..." />
+
+        <property name="db.data_path" value="${build.path}/storage/database" />
+        <property name="db.host" value="localhost" />
+        <property name="db.user" value="${build.basename}" />
+        <property name="db.pass" value="${db.user}" />
+        <property name="db.name" value="${db.user}" />
+        <property name="db.root.user" value="root" />
+        <property name="db.root.pass" value="${db.root.user}" />
+    </target>
+
+
+    <!--
+        Creates the MySQL database
+    -->
+    <target name="db:create" depends="db:config, db:drop" description="Create the database including privileges">
+        <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
+            CREATE DATABASE IF NOT EXISTS ${db.name} CHARACTER SET utf8;
+            GRANT all ON ${db.name}.* TO '${db.user}'@'${db.host}' IDENTIFIED BY '${db.pass}';
+            GRANT all ON ${db.name}.* TO '${db.user}'@'%' IDENTIFIED BY '${db.pass}';
+            FLUSH PRIVILEGES;
+        </pdosqlexec>
+
+        <echo msg="Database created!" />
+    </target>
+
+
+    <!--
+        Drops the MySQL database
+    -->
+    <target name="db:drop" depends="db:config" description="Drop the database">
+        <pdosqlexec url="mysql:host=${db.host};" userid="${db.root.user}" password="${db.root.pass}">
+            DROP DATABASE if exists ${db.name};
+        </pdosqlexec>
+
+        <echo msg="Database dropped!" />
+    </target>
+
+
+    <!--
+        Empty the database
+    -->
+    <target name="db:empty" depends="db:config" description="Truncate all tables">
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}">
+            SELECT CONCAT('SET FOREIGN_KEY_CHECKS = 0;TRUNCATE TABLE ',table_name, ';SET FOREIGN_KEY_CHECKS = 1;') FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE();
+            <formatter type="plain" outfile="${db.data_path}/truncate.sql" showheaders="false" coldelim="" />
+        </pdosqlexec>
+
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/truncate.sql" />
+
+        <delete file="${db.data_path}/truncate.sql" />
+    </target>
+
+
+    <!--
+        Create the database structure
+    -->
+    <target name="db:structure:load" depends="db:config, db:drop, db:create" description="Recreate the DB and load structure from data/db/create.sql">
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/create.sql" />
+    </target>
+
+
+    <!--
+        Populate the database
+    -->
+    <target name="db:data:load" depends="db:config, db:empty" description="Empty the database and reload from data/db/data.sql">
+        <exec command="mysql -u${db.user} -p${db.pass} -h${db.host} ${db.name} &lt; ${db.data_path}/data.sql" escape="false" />
+    </target>
+
+
+    <!--
+        Dump the data
+    -->
+    <target name="db:data:dump" depends="db:config" description="Dump DB structure into data/db/data.sql">
+        <echo msg="MySQL dump data into ${db.data_path}/data.sql" />
+        <exec command="mysqldump -cQ --complete-insert --extended-insert=0 --no-create-info --skip-comments --add-drop-table=false --no-create-db=true -u${db.user} -p${db.pass} -h${db.host} ${db.name} > ${db.data_path}/data.sql" />
+    </target>
+
+
+    <!--
+        Dump the structure
+    -->
+    <target name="db:structure:dump" depends="db:config" description="Dump DB structure into data/db/create.sql">
+        <echo msg="MySQL dump structure into ${db.data_path}/create.sql" />
+        <exec command="mysqldump -cQ --add-drop-table=false --no-data --skip-comments -u${db.user} -p${db.pass} -h${db.host} ${db.name} > ${db.data_path}/create.sql" />
+    </target>
+
+
+    <!--
+        Update DB structure from S3
+    -->
+    <target name="db:structure:update" depends="db:config" description="Download structure file from S3 to data/db/create.sql">
+        <echo msg="Pulling structure from: database.${project.name}.3ev.me..." />
+        <s3get
+                bucket="database.${project.name}.3ev.me"
+                object="create.sql.gz"
+                target="${db.data_path}/create.sql.gz" />
+        <echo msg="...done" />
+        <echo msg="Unzipping structure..." />
+        <if>
+            <available file="${db.data_path}/create.sql" property="already_have_structure" />
+            <then>
+                <delete file="${db.data_path}/create.sql" />
+            </then>
+        </if>
+        <exec command="gunzip ${db.data_path}/create.sql.gz" />
+        <echo msg="...done" />
+    </target>
+
+
+    <!--
+        Update DB data from S3
+    -->
+    <target name="db:data:update" depends="db:config" description="Download data file from S3 to data/db/data.sql">
+        <echo msg="Pulling data from: database.${project.name}.3ev.me..." />
+        <s3get
+                bucket="database.${project.name}.3ev.me"
+                object="data.sql.gz"
+                target="${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
+        <echo msg="Unzipping data..." />
+        <if>
+            <available file="${db.data_path}/data.sql" property="already_have_data" />
+            <then>
+                <delete file="${db.data_path}/data.sql" />
+            </then>
+        </if>
+        <exec command="gunzip ${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
+    </target>
+
+
+    <!--
+        Uploads the structure file to S3
+    -->
+    <target name="db:structure:commit" depends="db:config" description="Upload structure to S3 from data/db/create.sql">
+        <echo msg="Gzipping structure..." />
+        <exec command="gzip ${db.data_path}/create.sql" />
+        <echo msg="...done" />
+
+        <echo msg="Pushing structure..." />
+        <s3put
+                createBuckets="true"
+                bucket="database.${project.name}.3ev.me"
+                object="create.sql.gz"
+                source="${db.data_path}/create.sql.gz" />
+        <echo msg="...done" />
+
+        <echo msg="Cleaning up..." />
+        <exec command="rm ${db.data_path}/create.sql.gz" />
+        <echo msg="...done" />
+    </target>
+
+
+    <!--
+        Uploads the data file to S3
+    -->
+    <target name="db:data:commit" depends="db:config" description="Upload data to S3 from data/db/data.sql">
+        <echo msg="Gzipping data..." />
+        <exec command="gzip ${db.data_path}/data.sql" />
+        <echo msg="...done" />
+
+        <echo msg="Pushing data..." />
+        <s3put
+                createBuckets="true"
+                bucket="database.${project.name}.3ev.me"
+                object="data.sql.gz"
+                source="${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
+
+        <echo msg="Cleaning up..." />
+        <exec command="rm ${db.data_path}/data.sql.gz" />
+        <echo msg="...done" />
+    </target>
+
+
+    <!--
+        Download latest database from S3, and load
+    -->
+    <target name="db:update" depends="db:config" description="Download latest database from S3, and load">
+        <phingcall target="db:structure:update" />
+        <phingcall target="db:data:update" />
+        <phingcall target="db:structure:load" />
+        <phingcall target="db:data:load" />
+    </target>
+
+
+    <!--
+        Dump the current database and push to S3
+    -->
+    <target name="db:commit" depends="db:config" description="Dump the current database and push to S3">
+        <phingcall target="db:structure:dump" />
+        <phingcall target="db:data:dump" />
+        <phingcall target="db:structure:commit" />
+        <phingcall target="db:data:commit" />
+    </target>
+</project>
