@@ -44,6 +44,8 @@
         <property file="${paths.properties}" override="true" />
         <property name="build.environment" value="Development" />
         <property name="build.url" value="${build.name}.3ev.in" />
+
+        <phingcall target="build:save_config" />
     </target>
 
     <!--

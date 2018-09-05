@@ -10,7 +10,6 @@
     <!-- Load the PDOSQLEXEC task -->
     <taskdef name="pdosqlexec" classname="phing.tasks.ext.pdo.PDOSQLExecTask" />
 
-
     <!-- ==================================== -->
     <!--                Tasks                 -->
     <!-- ==================================== -->
@@ -29,6 +28,8 @@
         <property name="db.name" value="${db.user}" />
         <property name="db.root.user" value="root" />
         <property name="db.root.pass" value="${db.root.user}" />
+
+        <phingcall target="build:save_config" />
     </target>
 
 
