@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="" basedir="." default="...">
+    <!-- ==================================== -->
+    <!--                Tasks                 -->
+    <!-- ==================================== -->
+
+    <!--
+        Base task: README
+    -->
+    <target name="readme" hidden="true">
+        <echo msg="===================================" />
+        <echo msg="===================================" />
+        <echo msg="==== NOTHING HAPPENED =============" level="warning" />
+        <echo msg="" level="warning" />
+        <echo msg="     phing -l to see what to do" level="warning" />
+        <echo msg="" level="warning" />
+        <echo msg="===================================" />
+        <echo msg="===================================" />
+    </target>
+
+    <!--
+        Configure required build values.
+    -->
+    <target name="build:config" description="Configure build" hidden="true">
+        <echo msg="Configuring build..." />
+        <property name="paths.properties" value="${build.path}/config/phing.properties" />
+
+        <!-- This is where we load static properties -->
+        <property name="paths.project_properties" value="${build.path}/config/project.properties" />
+
+        <!-- Check if we have the properties file -->
+        <available file="${paths.properties}" property="hasPropertiesFile" />
+
+        <!-- Current directory name, used for default property values -->
+        <exec command="basename ${build.path}" dir="." checkreturn="true" outputProperty="build.basename" />
+
+        <!-- Configure default property values -->
+        <property name="build.name" value="${build.basename}" />
+        <property name="build.public_dir" value="${build.path}/htdocs" />
+        <property name="build.log_dir" value="${build.path}/storage/logs" />
+
+        <!-- Include configuration -->
+        <property file="${paths.project_properties}" override="true" />
+        <property file="${paths.properties}" override="true" />
+        <property name="build.environment" value="Development" />
+        <property name="build.url" value="${build.name}.3ev.in" />
+    </target>
+
+    <!--
+        Applies configuration to skel files
+    -->
+    <target name="build:skel" depends="project:config" description="Applies configuration to skel files">
+        <echo msg="Skel files..." />
+
+        <copy todir="" overwrite="true">
+            <mapper type="glob" from="*.skel" to="*"/>
+            <filterchain>
+                <expandproperties />
+            </filterchain>
+
+            <fileset dir=".">
+                <include name="**/*.skel" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!--
+        Symlink site into sites-enabled AND restart Apache.
+    -->
+    <target name="build:server" description="Symlink site into sites-enabled AND restart Apache">
+        <echo message="Finding config file for current environment..." />
+        <if>
+            <available file="${build.path}/config/httpd.${build.environment}.conf" />
+            <then>
+                <echo message="Found config for [${build.environment}] environment." />
+                <property name="build.server_config" value="${build.path}/config/httpd.${build.environment}.conf" />
+            </then>
+            <else>
+                <echo message="Did not find config for [${build.environment}] environment, using default." />
+                <property name="build.server_config" value="${build.path}/config/httpd.conf" />
+            </else>
+        </if>
+        <echo message="...done." />
+
+        <echo message="Symlinking to /etc/apache2/sites-enabled..." />
+        <exec command="sudo ln -sf ${build.server_config} /etc/apache2/sites-enabled/${build.name}.conf" />
+        <echo message="...done." />
+        <echo message="Reloading Apache config..." />
+        <exec command="sudo service apache2 reload" />
+        <echo message="...done." />
+    </target>
+
+    <!--
+        Housekeeping task
+    -->
+    <target name="build:housekeeping" description="Delete everything which isn't required for the running of the site. Logs etc">
+        <phingcall target="project:build:housekeeping" />
+    </target>
+
+    <!--
+        Exports properties to specified ${paths.properties}
+    -->
+    <target name="build:save_config" hidden="true">
+        <echo message="Property updated, saving..." />
+        <exportproperties targetfile="${paths.properties}" />
+        <echo message="...done" />
+    </target>
+
+    <!--
+        The main build task
+    -->
+    <target name="build" depends="project:config" description="Build the project">
+        <chmod file="${build.log_dir}" mode="0777" />
+
+        <phingcall target="project:build:before" />
+        <phingcall target="build:skel" />
+        <phingcall target="project:build:after" />
+    </target>
+</project>
