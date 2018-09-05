@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="" basedir="." default="...">
+    <!-- ==================================== -->
+    <!--             Dependencies             -->
+    <!-- ==================================== -->
+    <import file="${phingy.path}/scripts/core/database_auto.xml" />
+    <import file="${phingy.path}/scripts/platform/typo3.xml" />
+
+    <!-- ==================================== -->
+    <!--                 Tasks                -->
+    <!-- ==================================== -->
+    <target name="project:config" depends="build:config, db:config" hidden="true">
+        <echo msg="Running project:config" />
+
+        <property name="app.mail" value="0" />
+        <property name="build.elasticsearch_host" value="http://localhost:9200" />
+        <property name="logrotate.gpg.pass" value="logrotate" />
+    </target>
+
+    <target name="project:build:before" hidden="true">
+        <echo msg="Running project:build:before" />
+        <phingcall target="typo3:build:before" />
+    </target>
+
+    <target name="project:build:after" hidden="true">
+        <echo msg="Running project:build:after" />
+        <phingcall target="typo3:build:after" />
+    </target>
+
+    <target name="project:build:housekeeping" hidden="true">
+        <echo msg="Running project:build:housekeeping" />
+        <phingcall target="typo3:build:housekeeping" />
+    </target>
+
+    <target name="typo3:set:domain" description="Sets the TYPO3 sys domain based on the build config" depends="build:config, db:config">
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}">
+            UPDATE sys_domain SET domainName = '${build.url}';
+        </pdosqlexec>
+    </target>
+
+    <target name="project:logrotate" depends="build:config, project:config" description="Configures logrotate files and permissions">
+        <chmod mode="0777">
+            <fileset dir="./config">
+                <include name="logrotate.sh" />
+            </fileset>
+        </chmod>
+
+        <chmod mode="644">
+            <fileset dir="./config">
+                <include name="logrotate.config" />
+            </fileset>
+        </chmod>
+
+        <echo msg="Symlinking logrotate file ${build.path}/config/logrotate.config to /etc/logrotate.d/${build.name}" />
+        <exec command="sudo ln -s ${build.path}/config/logrotate.config /etc/logrotate.d/${build.name}" escape="false" />
+        <exec command="sudo chmod 777 ${build.path}/config/logrotate" escape="false" />
+        <exec command="sudo chmod 644 /etc/logrotate.d/${build.name}" escape="false" />
+        <exec command="sudo chown root /etc/logrotate.d/${build.name}" escape="false" />
+        <exec command="sudo chmod 644 ./config/logrotate.config" escape="false" />
+        <exec command="sudo chown root ./config/logrotate.config" escape="false" />
+    </target>
+</project>
