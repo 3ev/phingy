@@ -51,5 +51,13 @@ class ComposerScripts
         } else {
             $event->getIO()->write('config/project.xml exists, template not needed');
         }
+
+        // Create project_auto build file if it doesn't exist
+        if (!file_exists('config/project_auto.xml')) {
+            $event->getIO()->write('config/project_auto.xml does not exist. Copying template....');
+            copy("vendor/3ev/phingy/scripts/templates/project_auto.xml", 'config/project_auto.xml');
+        } else {
+            $event->getIO()->write('config/project_auto.xml already exists');
+        }
     }
 }
