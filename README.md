@@ -1,10 +1,10 @@
-#Phingy
+# Phingy
 
 Phingy is a small collection of build scripts which you can mix together differently
 depending on your project. To use these scripts, you include the required ones in
 your build script starting with your own project.xml.
 
-###Installation & dependencies
+### Installation & dependencies
 
 Phingy is installed via [Composer](http://getcomposer.org/). Add the following to
 your project's `composer.json` and run `composer install`:
@@ -31,7 +31,7 @@ You'll then be able to run Phing using
 $ bin/phing
 ```
 
-###'Skel' files
+### 'Skel' files
 
 Phingy will automatically generate files from `.skel` files anywhere in your project.
 These files can include Phing properties which will be replaced with their actual
@@ -50,7 +50,7 @@ environment specific config. Like so:
 </VirtualHost>
 ```
 
-###Database tasks & S3
+### Database tasks & S3
 
 If you'd like to make use of the database tasks that push/pull database dumps
 from Amazon S3, you will need to install the
@@ -70,7 +70,7 @@ $ bin/phing db:update
 There are numerous other database tasks that make it easy to configure a MySQL
 database for your project.
 
-###Setting up a webserver
+### Setting up a webserver
 
 Phingy includes a `build:server` task which will by default configure and install
 Apache configuration for your project.
@@ -85,7 +85,7 @@ $ sudo bin/phing build:server
 
 to start your project running on Apache.
 
-###Platform specific tasks
+### Platform specific tasks
 
 Phingy includes a few 'platform' specifc task sets, as followss:
 
@@ -130,25 +130,29 @@ and then call each of its hooks in your project-specific hooks:
 **Note:** If you pick a non-default template (like 'typo3'), all of this will be
 handled for you.
 
-###Adding your own project specific tasks and config
+### Adding your own project specific tasks and config
 
 You can add any of your own tasks in `config/project.xml`. These should be namespaced
 with `project:` for convention. You can either add standalone tasks, or call them
 in any of the available hooks.
 
-###Overriding existing tasks
+### Overriding existing tasks
 
 If you need to, you can override built in tasks by creating a new task with the
 same name in your `project.xml`. You shouldn't have to do this though, as the
 built in hooks provide enough flexibility for you to customise tasks.
 
-###Adding extra config
+### Adding extra config
 
 You add should any project specific config to `config/project.properties` if possible.
 If you need to prompt the user for it during build, you can do so in the
 `project:config` hook.
 
-###About ./build.xml
+### About ./build.xml
 
 `build.xml` sits in the root of your project, and is symlinked from `vendor/`.
 You should add this file to your `.gitignore`.
+
+### Automated building
+- To create a build where everything is set to a predetermined default, run the following: `bin/phing build -D build_auto=true`
+- Doing the above bases the build off of `scripts/core/build_auto.xml`, `scripts/core/database_auto.xml`, and ` [PROJECT BUILD]/config/project_auto.xml` 
