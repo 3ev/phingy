@@ -3,17 +3,20 @@
     <exec command="pwd" dir="." checkreturn="true" outputProperty="build.path" />
     <property name="phingy.path" value="${build.path}/vendor/3ev/phingy" />
 
-
-
     <!-- ==================================== -->
     <!--            Core Imports              -->
     <!-- ==================================== -->
-
-
-
-    <import file="${build.path}/config/project.xml" />
-    <import file="${phingy.path}/scripts/core/build.xml" />
-
-
-
+    <if>
+        <not>
+            <isset property="build_auto" />
+        </not>
+        <then>
+            <import file="${build.path}/config/project.xml" />
+            <import file="${phingy.path}/scripts/core/build.xml" />
+        </then>
+        <else>
+            <import file="${build.path}/config/project_auto.xml" />
+            <import file="${phingy.path}/scripts/core/build_auto.xml" />
+        </else>
+    </if>
 </project>
