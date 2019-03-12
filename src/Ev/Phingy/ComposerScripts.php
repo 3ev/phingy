@@ -1,6 +1,6 @@
 <?php namespace Ev\Phingy;
 
-use Composer\Script\Event;
+use Composer\Script\PackageEvent as Event;
 
 /**
  * Installation scripts.
