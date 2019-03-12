@@ -220,7 +220,7 @@
     -->
 
     <target name="db:structure:load" depends="db:config, db:drop, db:create" description="Recreate the DB and load structure from data/db/create.sql">
-        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" src="${db.data_path}/create.sql" />
+        <pdosqlexec url="mysql:host=${db.host};dbname=${db.name}" userid="${db.user}" password="${db.pass}" delimitertype="row" src="${db.data_path}/create.sql" />
     </target>
 
 
