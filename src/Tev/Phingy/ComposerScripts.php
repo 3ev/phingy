@@ -1,7 +1,7 @@
 <?php
 namespace Tev\Phingy;
 
-use Composer\Script\Event;
+//use Composer\Script\Event;
 
 /**
  * Installation scripts.
@@ -23,7 +23,7 @@ class ComposerScripts
      * @param $event
      * @return void
      */
-    public static function postInstall(Event $event)
+    public static function postInstall($event)
     {
         // Create core build file if it doesn't exist
         if (!file_exists('build.xml')) {
