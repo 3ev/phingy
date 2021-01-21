@@ -1,7 +1,7 @@
 <?php
 namespace Tev\Phingy;
 
-use Composer\Script\Event;
+use Composer\Installer\PackageEvent as Event;
 
 /**
  * Installation scripts.
