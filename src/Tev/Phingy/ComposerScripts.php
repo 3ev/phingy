@@ -1,7 +1,7 @@
 <?php
 namespace Tev\Phingy;
 
-//use Composer\Script\Event;
+use Composer\Script\Event;
 
 /**
  * Installation scripts.
@@ -20,7 +20,7 @@ class ComposerScripts
     /**
      * Create template build files if they don't exist.
      *
-     * @param $event
+     * @param \Composer\Script\Event $event
      * @return void
      */
     public static function postInstall($event)
